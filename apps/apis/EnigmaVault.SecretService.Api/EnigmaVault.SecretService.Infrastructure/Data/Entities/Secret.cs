@@ -33,5 +33,9 @@ public partial class Secret
 
     public bool IsArchive { get; set; }
 
+    public bool IsInTrash { get; set; }
+
+    public DateTime? DeletedAt { get; set; }
+
     public virtual Folder? IdFolderNavigation { get; set; }
 }

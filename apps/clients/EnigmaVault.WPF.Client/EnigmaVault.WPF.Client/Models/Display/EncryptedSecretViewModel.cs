@@ -167,6 +167,32 @@ namespace EnigmaVault.WPF.Client.Models.Display
             }
         }
 
+        public bool IsInTrash
+        {
+            get => _model.IsInTrash;
+            set
+            {
+                if (_model.IsInTrash != value)
+                {
+                    _model.IsInTrash = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public DateTime? DeletedAt
+        {
+            get => _model.DeletedAt;
+            set
+            {
+                if (_model.DeletedAt != value)
+                {
+                    _model.DeletedAt = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public string ServiceNameFirstLetter
         {
             get
@@ -175,6 +201,17 @@ namespace EnigmaVault.WPF.Client.Models.Display
                     return "#";
 
                 return ServiceName.Substring(0, 1).ToUpper();
+            }
+        }
+
+        public int TimeLeftToDelete
+        {
+            get
+            {
+                if (DeletedAt.HasValue)
+                    return (DeletedAt.Value - DateTime.UtcNow).Days;
+
+                return TimeSpan.Zero.Days;
             }
         }
 

@@ -66,7 +66,7 @@ namespace EnigmaVault.Infrastructure.Repositories
                         secretResponse!.IdSecret, secretResponse.IdFolder,
                         secretResponse.EncryptedData, secretResponse.Nonce,
                         secretResponse.ServiceName, secretResponse.Url, secretResponse.Notes, secretResponse.SvgIcon, secretResponse.SchemaVersion,
-                        secretResponse.DateAdded, secretResponse.DateUpdate, secretResponse.IsFavorite, secretResponse.IsArchive);
+                        secretResponse.DateAdded, secretResponse.DateUpdate, secretResponse.IsFavorite, secretResponse.IsArchive, secretResponse.IsInTrash, secretResponse.DeletedAt);
 
                     _logger.LogInformation("Секрет успешно создан: {@secretDomain}", secretDomain);
 
@@ -101,7 +101,7 @@ namespace EnigmaVault.Infrastructure.Repositories
 
                     List<SecretDomain> secrets = secretsResponse.Select(s => SecretDomain.Reconstruct(
                         s.IdSecret, s.IdFolder, s.EncryptedData, s.Nonce, s.ServiceName, s.Url, s.Notes, s.SvgIcon, s.SchemaVersion,
-                        s.DateAdded, s.DateUpdate, s.IsFavorite, s.IsArchive)).ToList();
+                        s.DateAdded, s.DateUpdate, s.IsFavorite, s.IsArchive, s.IsInTrash, s.DeletedAt)).ToList();
 
                     _logger.LogInformation("Список из {Count} секретов успешно получен.", secrets.Count);
                     return Result<List<SecretDomain>?>.Success(secrets);
@@ -317,6 +317,28 @@ namespace EnigmaVault.Infrastructure.Repositories
                 var payload = new
                 {
                     IsArchive = isArchive
+                };
+
+                HttpResponseMessage response = await _httpClient.PatchAsJsonAsync(endpoint, payload);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                    return Result.Success();
+                else
+                    return await _apiRequestHandler.HandleApiErrorAsync(response, operationName);
+
+            }, operationName);
+        }
+
+        public async Task<Result> UpdateIsInTrashAsync(int idSecret, bool isInTrash)
+        {
+            const string operationName = "добавление - удаление из корзины";
+            return await _apiRequestHandler.ExecuteApiCallAsync(async () =>
+            {
+                string endpoint = $"api/secrets/{idSecret}/IsInTrash";
+
+                var payload = new
+                {
+                    IsInTrash = isInTrash
                 };
 
                 HttpResponseMessage response = await _httpClient.PatchAsJsonAsync(endpoint, payload);

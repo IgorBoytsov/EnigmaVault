@@ -5,11 +5,13 @@ using EnigmaVault.SecretService.Application.Features.Secrets.Create;
 using EnigmaVault.SecretService.Application.Features.Secrets.Delete;
 using EnigmaVault.SecretService.Application.Features.Secrets.GetAll;
 using EnigmaVault.SecretService.Application.Features.Secrets.GetByIdSecret;
+using EnigmaVault.SecretService.Application.Features.Secrets.ManagementTrash;
 using EnigmaVault.SecretService.Application.Features.Secrets.Update;
 using EnigmaVault.SecretService.Domain.Enums;
 using EnigmaVault.SecretService.Domain.Results;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace EnigmaVault.SecretService.Api.Controllers
 {
@@ -251,6 +253,32 @@ namespace EnigmaVault.SecretService.Api.Controllers
             var command = new UpdateIsArchiveCommand(id, request.IsArchive);
 
             var result = await _mediator.Send(command);
+
+            if (result.IsSuccess)
+                return Ok();
+            else
+                return NotFound(result.Errors);
+        }
+
+
+        [HttpPatch("{id}/IsInTrash")]
+        public async Task<IActionResult> UpdateInTrash([FromRoute] int id, [FromBody] UpdateTrashSecretRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            Result<DateTime> result;
+
+            if (request.IsInTrash)
+            {
+                var command = new MoveSecretToTrashCommand(id);
+                result = await _mediator.Send(command);
+            }
+            else
+            {
+                var command = new RestoreItemFromTrashCommand(id);
+                result = await _mediator.Send(command);
+            }
 
             if (result.IsSuccess)
                 return Ok();

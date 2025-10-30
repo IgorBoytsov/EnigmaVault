@@ -169,6 +169,7 @@ namespace EnigmaVault.WPF.Client
             services.AddScoped<IUpdateMetaDataUseCase, UpdateMetaDataUseCase>();
             services.AddScoped<IUpdateNoteUseCase, UpdateNoteUseCase>();
             services.AddScoped<IUpdateFolderInSecretUseCase, UpdateFolderInSecretUseCase>();
+            services.AddScoped<IUpdateIsInTrashUseCase, UpdateIsInTrashUseCase>();
 
             services.AddScoped<ICreateFolderUseCase, CreateFolderUseCase>();
             services.AddScoped<IGetAllFoldersUseCase, GetAllFoldersUseCase>();

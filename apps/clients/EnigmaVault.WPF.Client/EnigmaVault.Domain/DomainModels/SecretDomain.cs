@@ -37,6 +37,10 @@ namespace EnigmaVault.Domain.DomainModels
 
         public bool IsArchive { get; private set; }
 
+        public bool IsInTrash { get; private set; }
+
+        public DateTime? DeletedAt { get; private set; }
+
         public static SecretDomain Create(int idUser, string encryptedData, string nonce, string serviceName, string? url, string? notes, string svgIcon, int schemaVersion, bool isFavorite)
         {
             return new SecretDomain()
@@ -53,7 +57,7 @@ namespace EnigmaVault.Domain.DomainModels
             };
         }
 
-        public static SecretDomain Reconstruct(int idSecret, int? idFolder, string encryptedData, string nonce, string serviceName, string? url, string? notes, string svgIcon, int schemaVersion, DateTime? dateAdded, DateTime? dateUpdate, bool isFavorite, bool isArchive)
+        public static SecretDomain Reconstruct(int idSecret, int? idFolder, string encryptedData, string nonce, string serviceName, string? url, string? notes, string svgIcon, int schemaVersion, DateTime? dateAdded, DateTime? dateUpdate, bool isFavorite, bool isArchive, bool isInTrash, DateTime? deletedAt)
         {
             return new SecretDomain()
             {
@@ -69,7 +73,9 @@ namespace EnigmaVault.Domain.DomainModels
                 DateAdded = dateAdded,
                 DateUpdate = dateUpdate,
                 IsFavorite = isFavorite,
-                IsArchive = isArchive
+                IsArchive = isArchive,
+                IsInTrash = isInTrash,
+                DeletedAt = deletedAt,
             };
         }
     }

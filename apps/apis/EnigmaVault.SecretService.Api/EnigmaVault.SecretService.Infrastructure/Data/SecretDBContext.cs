@@ -86,11 +86,13 @@ public partial class SecretDBContext : DbContext
             entity.Property(e => e.DateUpdate)
                 .HasColumnType("datetime")
                 .HasColumnName("date_update");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
             entity.Property(e => e.EncryptedData).HasColumnName("encrypted_data");
             entity.Property(e => e.IdFolder).HasColumnName("id_folder");
             entity.Property(e => e.IdUser).HasColumnName("id_user");
             entity.Property(e => e.IsArchive).HasColumnName("isArchive");
             entity.Property(e => e.IsFavorite).HasColumnName("isFavorite");
+            entity.Property(e => e.IsInTrash).HasColumnName("isInTrash");
             entity.Property(e => e.Nonce)
                 .HasMaxLength(12)
                 .HasColumnName("nonce");

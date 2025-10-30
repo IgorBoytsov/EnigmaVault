@@ -6,6 +6,7 @@ using EnigmaVault.Application.UseCases.Abstractions.FolderCase;
 using EnigmaVault.Application.UseCases.Abstractions.IconCase;
 using EnigmaVault.Application.UseCases.Abstractions.IconCategory;
 using EnigmaVault.Application.UseCases.Abstractions.SecretCase;
+using EnigmaVault.Application.UseCases.Implementations.SecretCase;
 using EnigmaVault.WPF.Client.Command;
 using EnigmaVault.WPF.Client.Constants;
 using EnigmaVault.WPF.Client.Enums;
@@ -17,6 +18,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Net.Sockets;
 using System.Text;
 using System.Windows;
 using System.Windows.Data;
@@ -46,6 +48,7 @@ namespace EnigmaVault.WPF.Client.ViewModels.Pages
         private readonly IGetAllFoldersUseCase _getAllFoldersUseCase;
         private readonly IUpdateFolderNameUseCase _updateFolderNameUseCase;
         private readonly IDeleteFolderUseCase _deleteFolderUseCase;
+        private readonly IUpdateIsInTrashUseCase _updateIsInTrashUseCase;
 
         private readonly IGetAllIconCategoryUseCase _getAllIconCategory;
         private readonly IGetAllIconsUseCase _getAllIconsUseCase;
@@ -63,6 +66,7 @@ namespace EnigmaVault.WPF.Client.ViewModels.Pages
                                  IUpdateSecretUseCase updateSecretUseCase,
                                  IUpdateFolderInSecretUseCase updateFolderInSecretUseCase,
                                  IUpdateIconInSecretUseCase updateIconIsSecretUseCase,
+                                 IUpdateIsInTrashUseCase updateIsInTrashUseCase,
                                  ICreateFolderUseCase createFolderUseCase,
                                  IGetAllFoldersUseCase getAllFoldersUseCase,
                                  IDeleteFolderUseCase deleteFolderUseCase,
@@ -84,6 +88,7 @@ namespace EnigmaVault.WPF.Client.ViewModels.Pages
             _updateFolderInSecretUseCase = updateFolderInSecretUseCase;
             _updateIconInSecretUseCase = updateIconIsSecretUseCase;
             _updateSecretUseCase = updateSecretUseCase;
+            _updateIsInTrashUseCase = updateIsInTrashUseCase;
 
             _createFolderUseCase = createFolderUseCase;
             _getAllFoldersUseCase = getAllFoldersUseCase;
@@ -148,6 +153,7 @@ namespace EnigmaVault.WPF.Client.ViewModels.Pages
         public ICollectionView SecretsView { get; private set; } = null!;
 
         public ObservableCollection<EncryptedSecretViewModel> ArchivedSecrets {  get; private set; } = [];
+        public ObservableCollection<EncryptedSecretViewModel> TrashSecrets {  get; private set; } = [];
 
         private Dictionary<int, string> FolderLookup = [];
         public ObservableCollection<FolderViewModel> Folders { get; private set; } = [];
@@ -494,12 +500,31 @@ namespace EnigmaVault.WPF.Client.ViewModels.Pages
                 if (value && IsArchiveEmpty)
                     return;
 
-                if (SetProperty(ref _isArchivePopupOpen, value))
-                    _isArchivePopupOpen = value;
+                SetProperty(ref _isArchivePopupOpen, value);
             }
         }
 
         public bool IsArchiveEmpty => ArchivedSecrets == null || ArchivedSecrets.Count == 0;
+
+        #endregion 
+
+        #region Popup : SecretsToDeletePopup
+
+        private bool _isSecretsToDeletePopupOpen;
+        public bool IsSecretsToDeletePopupOpen
+        {
+            get => _isSecretsToDeletePopupOpen;
+            set
+            {
+                if (value && IsTrashEmpty)
+                    return;
+
+                SetProperty(ref _isSecretsToDeletePopupOpen, value);
+            }
+        }
+
+        //public bool IsTrashEmpty => SecretsToDeleted == null || SecretsToDeleted.Count == 0;
+        public bool IsTrashEmpty => TrashSecrets == null || TrashSecrets.Count == 0;
 
         #endregion 
 
@@ -523,6 +548,9 @@ namespace EnigmaVault.WPF.Client.ViewModels.Pages
             UpdateFolderNameCommand = new RelayCommandAsync<FolderViewModel>(Execute_UpdateFolderNameCommand, CanExecute_UpdateFolderNameCommand);
             DeleteFolderCommand = new RelayCommandAsync<FolderViewModel>(Execute_DeleteFolderCommand, CanExecute_DeleteFolderCommand);
             AddSecretInFolder = new RelayCommandAsync<FolderViewModel>(Execute_AddSecretInFolder, CanExecute_AddSecretInFolder);
+
+            MoveToTrashSecretCommand = new RelayCommandAsync<EncryptedSecretViewModel>(Execute_MoveToTrashSecretCommand, CanExecute_MoveToTrashSecretCommand);
+            UnMoveToTrashSecretCommand = new RelayCommandAsync<EncryptedSecretViewModel>(Execute_UnMoveToTrashSecretCommand, CanExecute_UnMoveToTrashSecretCommand);
 
             OpenUrlCommand = new RelayCommand<string>(Execute_OpenUrlCommand, CanExecute_OpenUrlCommand);
             SwitchTemplateSecretsCommand = new RelayCommand<TemplateType>(Execute_SwitchTemplateSecretsCommand, CanExecute_SwitchTemplateSecretsCommand);
@@ -672,12 +700,74 @@ namespace EnigmaVault.WPF.Client.ViewModels.Pages
 
             int? currentSecretFolderID = secret.IdFolder;
 
-            _secrets.Remove(secret);
+            TrashSecrets.Remove(secret);
             CalculateElementsInfFolder(currentSecretFolderID);
             CalculateElementsInfFolder();
         }
 
         private bool CanExecute_DeleteSecretCommand(EncryptedSecretViewModel secret) => secret != null;
+
+        #endregion
+
+        #region [MoveToTrashSecretCommand] - Перемещение записей в карзину
+
+        public RelayCommandAsync<EncryptedSecretViewModel> MoveToTrashSecretCommand { get; set; }
+
+        private async Task Execute_MoveToTrashSecretCommand(EncryptedSecretViewModel secret)
+        {
+            var result = await _updateIsInTrashUseCase.UpdateIsInTrashAsync(secret.IdSecret, true);
+
+            if (!result.IsSuccess)
+            {
+                var sb = new StringBuilder();
+
+                foreach (var error in result.Errors)
+                    sb.Append(error.Description);
+
+                MessageBox.Show(sb.ToString());
+                return;
+            }
+
+            _secrets.Remove(secret);
+            TrashSecrets.Add(secret);
+
+            CalculateElementsInfFolder();
+            CalculateElementsInfFolder(secret.IdFolder);
+            CalculateFavoriteElements();
+        }
+
+        private bool CanExecute_MoveToTrashSecretCommand(EncryptedSecretViewModel model) => true;
+
+        #endregion
+
+        #region [UnMoveToTrashSecretCommand] - Перемещение записей из карзину
+
+        public RelayCommandAsync<EncryptedSecretViewModel> UnMoveToTrashSecretCommand { get; set; }
+
+        private async Task Execute_UnMoveToTrashSecretCommand(EncryptedSecretViewModel secret)
+        {
+            var result = await _updateIsInTrashUseCase.UpdateIsInTrashAsync(secret.IdSecret, false);
+
+            if (!result.IsSuccess)
+            {
+                var sb = new StringBuilder();
+
+                foreach (var error in result.Errors)
+                    sb.Append(error.Description);
+
+                MessageBox.Show(sb.ToString());
+                return;
+            }
+
+            TrashSecrets.Remove(secret);
+            _secrets.Add(secret);
+
+            CalculateElementsInfFolder();
+            CalculateElementsInfFolder(secret.IdFolder);
+            CalculateFavoriteElements();
+        }
+
+        private bool CanExecute_UnMoveToTrashSecretCommand(EncryptedSecretViewModel model) => true;
 
         #endregion
 
@@ -1186,7 +1276,22 @@ namespace EnigmaVault.WPF.Client.ViewModels.Pages
                 var display = new EncryptedSecretViewModel(item);
                 display.SetIcon(icon!, item.SvgIcon);
 
-                (display.IsArchive ? ArchivedSecrets : _secrets).Add(display);
+                if (display.IsArchive)
+                {
+                    ArchivedSecrets.Add(display);
+                    continue;
+                }
+                    
+                if (display.IsInTrash)
+                {
+                    TrashSecrets.Add(display);
+                    continue;
+                }
+
+                _secrets.Add(display);
+
+                //(display.IsArchive ? ArchivedSecrets : _secrets).Add(display);
+                //(display.IsInTrash ? TrashSecrets : _secrets).Add(display);
             }
                 
             CalculateFavoriteElements();

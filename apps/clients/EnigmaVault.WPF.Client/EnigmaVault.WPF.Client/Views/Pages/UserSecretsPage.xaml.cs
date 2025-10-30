@@ -13,25 +13,26 @@ namespace EnigmaVault.WPF.Client.Views.Pages
         {
             InitializeComponent();
 
-            Loaded += YourControlOrWindow_Loaded;
+            Loaded += ControlArchiveWindow_Loaded;
+            Loaded += ControlToDeletedWindow_Loaded;
         }
 
         //TODO: Перенести код в Behavior
         #region Управление Popop с отображением архивированных записей 
 
-        private void YourControlOrWindow_Loaded(object sender, RoutedEventArgs e)
+        private void ControlArchiveWindow_Loaded(object sender, RoutedEventArgs e)
         {
             if (OpenArchiveManagementButton != null)
             {
                 OpenArchiveManagementButton.Checked += OpenArchiveManagementButton_Checked;
                 OpenArchiveManagementButton.Unchecked += OpenArchiveManagementButton_Unchecked;
-                UpdatePopupPosition();
+                UpdateArchivePopupPosition();
             }
         }
 
         private void OpenArchiveManagementButton_Checked(object sender, RoutedEventArgs e)
         {
-            UpdatePopupPosition();
+            UpdateArchivePopupPosition();
             ArchiveManagementPopup.IsOpen = true;
         }
 
@@ -40,7 +41,7 @@ namespace EnigmaVault.WPF.Client.Views.Pages
             ArchiveManagementPopup.IsOpen = false;
         }
 
-        private void UpdatePopupPosition()
+        private void UpdateArchivePopupPosition()
         {
             if (ArchiveManagementPopup != null && OpenArchiveManagementButton != null)
             {
@@ -53,7 +54,7 @@ namespace EnigmaVault.WPF.Client.Views.Pages
             }
         }
 
-        private CustomPopupPlacement[] PlacePopup(Size popupSize, Size targetSize, Point offset)
+        private CustomPopupPlacement[] PlaceArchivePopup(Size popupSize, Size targetSize, Point offset)
         {
             if (OpenArchiveManagementButton != null)
             {
@@ -74,6 +75,61 @@ namespace EnigmaVault.WPF.Client.Views.Pages
             return new[] 
             {
                 new CustomPopupPlacement(new Point(0, 0), PopupPrimaryAxis.Vertical) 
+            };
+        }
+
+        #endregion
+
+        #region Управление Popup с отображение записей для удаления
+
+        private void ControlToDeletedWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (OpenArchiveManagementButton != null)
+            {
+                OpenSecretsToDeleteManagementButton.Checked += OpenSecretsToDeleteManagementButton_Checked;
+                OpenSecretsToDeleteManagementButton.Unchecked += OpenSecretsToDeleteManagementButton_Unchecked;
+                UpdateSecretsToDeletePopupPosition();
+            }
+        }
+
+        private void OpenSecretsToDeleteManagementButton_Checked(object sender, RoutedEventArgs e)
+        {
+            UpdateSecretsToDeletePopupPosition();
+            TrashManagementPopup.IsOpen = true;
+        }
+
+        private void OpenSecretsToDeleteManagementButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            TrashManagementPopup.IsOpen = false;
+        }
+
+        private void UpdateSecretsToDeletePopupPosition()
+        {
+            if (TrashManagementPopup != null && OpenSecretsToDeleteManagementButton != null)
+            {
+                TrashManagementPopup.Height = TrashManagementPopup.Height + 100;
+                TrashManagementPopup.MaxHeight = this.ActualHeight - 150;
+            }
+        }
+
+        private CustomPopupPlacement[] PlaceSecretsToDeletePopup(Size popupSize, Size targetSize, Point offset)
+        {
+            if (OpenSecretsToDeleteManagementButton != null)
+            {
+                var target = OpenSecretsToDeleteManagementButton;
+                var buttonPosition = target.PointToScreen(new Point(0, 0));
+                target.PointFromScreen(buttonPosition);
+
+                double xOffset = target.ActualWidth;
+                double yOffset = 0;
+                return new[]
+                { 
+                    new CustomPopupPlacement(new Point(xOffset + 10, (yOffset - popupSize.Height) + 50), PopupPrimaryAxis.Vertical)
+                };
+            }
+            return new[]
+            {
+                new CustomPopupPlacement(new Point(0, 0), PopupPrimaryAxis.Vertical)
             };
         }
 

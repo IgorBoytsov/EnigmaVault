@@ -1,6 +1,8 @@
-﻿namespace EnigmaVault.SecretService.Domain.DomainModels
+﻿using EnigmaVault.SecretService.Domain.Events;
+
+namespace EnigmaVault.SecretService.Domain.DomainModels
 {
-    public sealed class SecretDomain
+    public sealed class SecretDomain : Entity
     {
         private SecretDomain()
         {
@@ -35,6 +37,10 @@
 
         public bool IsArchive { get; private set; }
 
+        public bool IsInTrash { get; private set; }
+
+        public DateTime? DeletedAt { get; private set; }
+
         public static SecretDomain Create(int idUser, byte[] encryptedData, byte[] iv, string serviceName, string? url, string? notes, string? svgIcon, int schemaVersion)
         {
             DateTime dateAdded = DateTime.UtcNow;
@@ -57,7 +63,13 @@
             };
         }
 
-        public static SecretDomain Reconstruct(int idSecret, int idUser, int? idFolder, byte[] encryptedData, byte[] iv, string serviceName, string? url, string? notes, string? svgIcon, int schemaVersion, DateTime dateAdded, DateTime dateUpdate, bool IsFavorite, bool isArchive)
+        public static SecretDomain Reconstruct(
+            int idSecret, int idUser, int? idFolder, 
+            byte[] encryptedData, byte[] iv, 
+            string serviceName, string? url, string? notes, string? svgIcon, 
+            int schemaVersion, 
+            DateTime dateAdded, DateTime dateUpdate, 
+            bool IsFavorite, bool isArchive, bool isInTrash, DateTime? deletedAt)
         {
             return new SecretDomain
             {
@@ -74,7 +86,9 @@
                 DateAdded = dateAdded,
                 DateUpdate = dateUpdate,
                 IsFavorite = IsFavorite,
-                IsArchive = isArchive
+                IsArchive = isArchive,
+                IsInTrash =  isInTrash,
+                DeletedAt = deletedAt
             };
         }
 
@@ -158,6 +172,32 @@
             {
                 IsArchive = isArchive;
             }
+        }
+
+        public void MoveToTrash()
+        {
+            if (IsInTrash)
+            {
+                return;
+            }
+
+            IsInTrash = true;
+            DeletedAt = DateTime.UtcNow.AddDays(30);
+
+            AddDomainEvent(new SecretMovedToTrashDomainEvent(this.IdSecret));
+        }
+
+        public void RestoreFromTrash()
+        {
+            if (!IsInTrash)
+            {
+                return;
+            }
+
+            IsInTrash = false;
+            DeletedAt = null;
+
+            AddDomainEvent(new SecretRestoredFromTrashDomainEvent(this.IdSecret));
         }
 
         #endregion

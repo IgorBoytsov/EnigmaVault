@@ -11,7 +11,9 @@ using System.Runtime.CompilerServices;
 
 namespace EnigmaVault.SecretService.Infrastructure.Repositories
 {
-    internal class SecretRepository(SecretDBContext context, IEntityUpdater entityUpdater) : ISecretRepository
+    internal class SecretRepository(
+        SecretDBContext context, 
+        IEntityUpdater entityUpdater) : ISecretRepository
     {
         private readonly SecretDBContext _context = context;
         private readonly IEntityUpdater _entityUpdater = entityUpdater;
@@ -37,7 +39,7 @@ namespace EnigmaVault.SecretService.Infrastructure.Repositories
             await _context.Secrets.AddAsync(entity);
             await _context.SaveChangesAsync();
             
-            var secretDomain = SecretDomain.Reconstruct(entity.IdSecret, entity.IdUser, entity.IdFolder, entity.EncryptedData, entity.Nonce, entity.ServiceName, entity.Url, entity.Notes, entity.SvgIcon, entity.SchemaVersion, entity.DateAdded, entity.DateUpdate, entity.IsFavorite, entity.IsArchive);
+            var secretDomain = SecretDomain.Reconstruct(entity.IdSecret, entity.IdUser, entity.IdFolder, entity.EncryptedData, entity.Nonce, entity.ServiceName, entity.Url, entity.Notes, entity.SvgIcon, entity.SchemaVersion, entity.DateAdded, entity.DateUpdate, entity.IsFavorite, entity.IsArchive, entity.IsInTrash, entity.DeletedAt);
 
             return secretDomain;
         }
@@ -58,6 +60,8 @@ namespace EnigmaVault.SecretService.Infrastructure.Repositories
                     Url = s.Url,
                     IsFavorite = s.IsFavorite,
                     IsArchive = s.IsArchive,
+                    IsInTrash = s.IsInTrash,
+                    DeletedAt = s.DeletedAt,
                     DateUpdate = s.DateUpdate,
                     DateAdded = s.DateAdded,
                     EncryptedData = s.EncryptedData,
@@ -80,7 +84,7 @@ namespace EnigmaVault.SecretService.Infrastructure.Repositories
             if (entity is null)
                 return null;
 
-            var secretDomain = SecretDomain.Reconstruct(entity.IdSecret, entity.IdUser, entity.IdFolder, entity.EncryptedData, entity.Nonce, entity.ServiceName, entity.Url, entity.Notes, entity.SvgIcon, entity.SchemaVersion, entity.DateAdded, entity.DateUpdate, entity.IsFavorite, entity.IsArchive);
+            var secretDomain = SecretDomain.Reconstruct(entity.IdSecret, entity.IdUser, entity.IdFolder, entity.EncryptedData, entity.Nonce, entity.ServiceName, entity.Url, entity.Notes, entity.SvgIcon, entity.SchemaVersion, entity.DateAdded, entity.DateUpdate, entity.IsFavorite, entity.IsArchive, entity.IsInTrash, entity.DateAdded);
 
             return secretDomain;
         }
@@ -101,7 +105,11 @@ namespace EnigmaVault.SecretService.Infrastructure.Repositories
                 var countLineInUpdate = await _context.SaveChangesAsync();
 
                 if (countLineInUpdate > 0)
+                {
+                   domain.ClearDomainEvents();
+
                     return Result<DateTime>.Success(storage.DateUpdate);
+                }
                 else
                     return Result<DateTime>.Failure(new Error(ErrorCode.UpdateError, "Не удалось изменить данные."));
             }
@@ -142,6 +150,9 @@ namespace EnigmaVault.SecretService.Infrastructure.Repositories
 
             secretToUpdate.IsFavorite = secretDomain.IsFavorite;
             secretToUpdate.IsArchive = secretDomain.IsArchive;
+
+            secretToUpdate.IsInTrash = secretDomain.IsInTrash;
+            secretToUpdate.DeletedAt = secretDomain.DeletedAt;
 
             secretToUpdate.IdFolder = secretDomain.IdFolder;
 

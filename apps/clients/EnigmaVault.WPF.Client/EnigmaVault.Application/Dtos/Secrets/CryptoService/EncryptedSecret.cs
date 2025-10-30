@@ -15,6 +15,9 @@
         public bool IsFavorite { get; set; }
         public bool IsArchive { get; set; }
 
+        public bool IsInTrash { get; set; }
+        public DateTime? DeletedAt { get; set; }
+
         public string EncryptedData { get; set; }
         public string Nonce { get; set; }
         public string SvgIcon { get; set; }
