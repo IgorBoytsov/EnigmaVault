@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>4a2d21db-e6dd-4e15-a769-2b68712c3e0f</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..\..\..</DockerfileContext>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\common\Common.Core\Common.Core.csproj" />
+    <ProjectReference Include="..\..\..\common\Shared.Contracts\Shared.Contracts.csproj" />
+    <ProjectReference Include="..\EnigmaVault.ConfigurationService.Application\EnigmaVault.ConfigurationService.Application.csproj" />
+    <ProjectReference Include="..\EnigmaVault.ConfigurationService.Infrastructure\EnigmaVault.ConfigurationService.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

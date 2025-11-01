@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\common\Common.Core\Common.Core.csproj" />
+    <ProjectReference Include="..\EnigmaVault.ConfigurationService.Application\EnigmaVault.ConfigurationService.Application.csproj" />
+    <ProjectReference Include="..\EnigmaVault.ConfigurationService.Domain\EnigmaVault.ConfigurationService.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

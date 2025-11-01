@@ -1,7 +1,0 @@
-﻿namespace EnigmaVault.SecretService.Application.Abstractions.Common
-{
-    public interface IMessagePublisher
-    {
-        Task PublishAsync<T>(T message, CancellationToken cancellationToken = default) where T : class;
-    }
-}
