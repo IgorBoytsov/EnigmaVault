@@ -1,10 +1,9 @@
-﻿using LanguageExt;
-using System.Windows;
+﻿using System.Windows;
 
-namespace EnigmaVault.Desktop
+namespace EnigmaVault.Desktop.Views.Windows
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {

@@ -9,12 +9,41 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Prism.DryIoc" Version="9.0.537" />
+    <None Remove="Resources\Images\auth-background-key.png" />
+    <None Remove="Resources\Images\auth-background.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\clients\Api\EnigmaVault.Authentication.ApiClient\EnigmaVault.Authentication.ApiClient.csproj" />
     <ProjectReference Include="..\..\common\Common.Core\Common.Core.csproj" />
     <ProjectReference Include="..\..\common\Shared.Contracts\Shared.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Factories\Pages\" />
+    <Folder Include="ViewModels\Pages\" />
+    <Folder Include="Models\" />
+    <Folder Include="Views\Pages\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Images\auth-background-key.png" />
+    <Resource Include="Resources\Images\auth-background.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="apiconfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
