@@ -8,12 +8,12 @@ using Shared.Contracts.Responses.PasswordService;
 
 namespace EnigmaVault.PasswordService.Application.Features.IconCategories.Queries.GetPersonal
 {
-    internal sealed class GetAllPersonalHandler(IApplicationDbContext context, IMapper mapper) : IRequestHandler<GetAllPersonal, List<IconCategoryResponse>>
+    internal sealed class GetAllPersonalIconCategoriesHandler(IApplicationDbContext context, IMapper mapper) : IRequestHandler<GetAllPersonalIconCategories, List<IconCategoryResponse>>
     {
         private readonly IApplicationDbContext _context = context;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<List<IconCategoryResponse>> Handle(GetAllPersonal request, CancellationToken cancellationToken)
+        public async Task<List<IconCategoryResponse>> Handle(GetAllPersonalIconCategories request, CancellationToken cancellationToken)
             => await _context.Set<IconCategory>()
                 .Where(ic => ic.UserId == request.UserId)
                     .ProjectTo<IconCategoryResponse>(_mapper.ConfigurationProvider)

@@ -1,6 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using EnigmaVault.PasswordService.Application.Features.IconCategories.Commands.CreatePersonal;
+using FluentValidation;
+using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
+using Shared.Application.Behaviors;
 
 namespace EnigmaVault.PasswordService.Application.Ioc
 {
@@ -8,8 +11,13 @@ namespace EnigmaVault.PasswordService.Application.Ioc
     {
         public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-            services.AddAutoMapper(cfg => cfg.LicenseKey = configuration["AutoMapper:AutoMapperKey"], Assembly.GetExecutingAssembly());
+            var currentAssembly = typeof(CreatePersonalCategoryCommandHandler).Assembly;
+            services.AddValidatorsFromAssembly(currentAssembly);
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(currentAssembly));
+
+            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+            services.AddAutoMapper(cfg => cfg.LicenseKey = configuration["AutoMapper:AutoMapperKey"], currentAssembly);
 
             return services;
         }

@@ -89,7 +89,7 @@ namespace EnigmaVault.PasswordService.Controllers
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetAll([FromRoute] Guid userId)
         {
-            var result = await _mediator.Send(new GetAllIQuery(userId));
+            var result = await _mediator.Send(new GetAllIconCategoriesQuery(userId));
 
             return Ok(result);
         }
@@ -97,7 +97,7 @@ namespace EnigmaVault.PasswordService.Controllers
         [HttpGet("personal/{userId}")]
         public async Task<IActionResult> GetAllPersonal([FromRoute] Guid userId)
         {
-            var result = await _mediator.Send(new GetAllPersonal(userId));
+            var result = await _mediator.Send(new GetAllPersonalIconCategories(userId));
 
             return Ok(result);
         }
