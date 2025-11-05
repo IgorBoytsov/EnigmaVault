@@ -33,5 +33,6 @@
         ApiError = 4004,
         InvalidIdentifier = 4005,
         Get = 4006,
+        Empty = 4007,
     }
 }
