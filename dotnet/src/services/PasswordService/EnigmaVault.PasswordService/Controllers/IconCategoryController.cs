@@ -31,7 +31,7 @@ namespace EnigmaVault.PasswordService.Controllers
         }
 
         [HttpPost("personal")]
-        public async Task<IActionResult> CreateCommon([FromBody] CreateIconCategoryPersonalRequest request)
+        public async Task<IActionResult> CreatePersonal([FromBody] CreateIconCategoryPersonalRequest request)
         {
             var result = await _mediator.Send(new CreatePersonalCategoryCommand(request.Name, request.UserId));
 
@@ -53,7 +53,7 @@ namespace EnigmaVault.PasswordService.Controllers
         }
 
         [HttpPatch("personal")]
-        public async Task<IActionResult> UpdateCommon([FromBody] UpdatePersonalIconCategoryRequest request)
+        public async Task<IActionResult> UpdatePersonal([FromBody] UpdatePersonalIconCategoryRequest request)
         {
             var result = await _mediator.Send(new UpdatePersonalIconCategoryCommand(request.Id, request.UserId, request.Name));
 
@@ -75,7 +75,7 @@ namespace EnigmaVault.PasswordService.Controllers
         }
 
         [HttpDelete("personal/{userId}/{id}")]
-        public async Task<IActionResult> DeleteCommon([FromRoute] Guid id, [FromRoute] Guid userId)
+        public async Task<IActionResult> DeletePersonal([FromRoute] Guid id, [FromRoute] Guid userId)
         {
             var result = await _mediator.Send(new DeletePersonalIconCategoryCommand(id, userId));
 
