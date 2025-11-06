@@ -18,6 +18,8 @@ namespace EnigmaVault.PasswordService.Domain.ValueObjects.SvgIcon
             return new IconId(value);
         }
 
+        public static IconId New() => new(Guid.NewGuid());
+
         public static implicit operator Guid(IconId value) => value.Value;
     }
 }
