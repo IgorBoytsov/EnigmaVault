@@ -22,6 +22,8 @@ namespace EnigmaVault.PasswordService.Domain.ValueObjects.SvgIcon
             return new IconName(value);
         }
 
+        public override string ToString() => Value;
+
         public static implicit operator string(IconName value) => value.Value;
     }
 }
