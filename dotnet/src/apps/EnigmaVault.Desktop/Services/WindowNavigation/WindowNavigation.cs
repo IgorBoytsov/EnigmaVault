@@ -2,19 +2,13 @@
 using EnigmaVault.Desktop.ViewModels.Base;
 using Shared.WPF.Navigations.Windows;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace EnigmaVault.Desktop.Services.WindowNavigation
 {
-    public sealed class WindowNavigation : IWindowNavigation
+    public sealed class WindowNavigation(IEnumerable<IWindowFactory> windowFactories) : IWindowNavigation
     {
-        private Dictionary<WindowsName, Window> _windows = [];
-        private readonly Dictionary<string, IWindowFactory> _windowFactories = [];
-
-        public WindowNavigation(IEnumerable<IWindowFactory> windowFactories)
-        {
-            _windowFactories = windowFactories.ToDictionary(f => f.GetType().Name.Replace("Factory", ""), f => f);
-        }
+        private readonly Dictionary<WindowsName, Window> _windows = [];
+        private readonly Dictionary<WindowsName, IWindowFactory> _windowFactories = windowFactories.ToDictionary(f => f.WindowName, f => f);
 
         public void Open(WindowsName name, bool isOpenDialog = false)
         {
@@ -26,14 +20,13 @@ namespace EnigmaVault.Desktop.Services.WindowNavigation
 
         private void OpenWindow(WindowsName windowName, bool isOpenDialog = false)
         {
-            if (_windowFactories.TryGetValue(windowName.ToString(), out var factory))
+            if (_windowFactories.TryGetValue(windowName, out var factory))
             {
                 var window = factory.CreateWindow();
 
                 _windows[windowName] = window;
 
                 window.Closed += (c, e) => _windows.Remove(windowName);
-                window.StateChanged += MainWindowStateChangeRaised!;
 
                 (isOpenDialog ? () => { window.ShowDialog(); } : (Action)window.Show)();
             }
@@ -77,29 +70,6 @@ namespace EnigmaVault.Desktop.Services.WindowNavigation
         {
             if (_windows.TryGetValue(windowName, out Window? window))
                 SystemCommands.RestoreWindow(window);
-        }
-
-        private void MainWindowStateChangeRaised(object sender, EventArgs e)
-        {
-            if (sender is Window window)
-            {
-                var mainWindowBorder = window.FindName("MainWindowBorder") as Border;
-                var restoreButton = window.FindName("RestoreButton") as Button;
-                var maximizeButton = window.FindName("MaximizeButton") as Button;
-
-                if (window.WindowState == WindowState.Maximized)
-                {
-                    mainWindowBorder!.BorderThickness = new Thickness(8);
-                    restoreButton!.Visibility = Visibility.Visible;
-                    maximizeButton!.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    mainWindowBorder!.BorderThickness = new Thickness(0);
-                    restoreButton!.Visibility = Visibility.Collapsed;
-                    maximizeButton!.Visibility = Visibility.Visible;
-                }
-            }
         }
     }
 }

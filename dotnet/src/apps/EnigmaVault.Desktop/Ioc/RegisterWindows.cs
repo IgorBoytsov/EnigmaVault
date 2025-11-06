@@ -1,7 +1,7 @@
 ﻿using EnigmaVault.Desktop.Factories.Windows;
+using EnigmaVault.Desktop.Services.WindowNavigation;
 using EnigmaVault.Desktop.ViewModels.Windows;
 using Microsoft.Extensions.DependencyInjection;
-using Shared.WPF.Navigations.Windows;
 
 namespace EnigmaVault.Desktop.Ioc
 {

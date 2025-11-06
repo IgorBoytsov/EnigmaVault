@@ -4,17 +4,12 @@ using System.Windows.Controls;
 
 namespace EnigmaVault.Desktop.Services.PageNavigation
 {
-    public sealed class PageNavigation : IPageNavigation
+    public sealed class PageNavigation(IEnumerable<IPageFactory> pageFactories) : IPageNavigation
     {
-        private Dictionary<FramesName, Frame> _frames = [];
-        private Dictionary<PagesName, Page> _pages = [];
-        private Dictionary<FramesName, PagesName> _currenDisplayedPage = [];
-        private readonly Dictionary<string, IPageFactory> _pagesFactories = [];
-
-        public PageNavigation(IEnumerable<IPageFactory> pageFactories)
-        {
-            _pagesFactories = pageFactories.ToDictionary(f => f.GetType().Name.Replace("PageFactory", ""), f => f);
-        }
+        private readonly Dictionary<FramesName, Frame> _frames = [];
+        private readonly Dictionary<PagesName, Page> _pages = [];
+        private readonly Dictionary<FramesName, PagesName> _currenDisplayedPage = [];
+        private readonly Dictionary<PagesName, IPageFactory> _pagesFactories = pageFactories.ToDictionary(f => f.PageName, f => f);
 
         public void RegisterFrame(FramesName frameName, Frame frame)
         {
@@ -35,7 +30,7 @@ namespace EnigmaVault.Desktop.Services.PageNavigation
             }
             else
             {
-                if (_pagesFactories.TryGetValue(pageName.ToString(), out var factory))
+                if (_pagesFactories.TryGetValue(pageName, out var factory))
                 {
                     if (_frames.TryGetValue(frameName, out var frame))
                     {
