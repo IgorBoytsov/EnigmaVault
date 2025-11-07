@@ -3,5 +3,8 @@
     public enum PagesName
     {
         None,
+        Setting,
+        Password,
+        Secret,
     }
 }
