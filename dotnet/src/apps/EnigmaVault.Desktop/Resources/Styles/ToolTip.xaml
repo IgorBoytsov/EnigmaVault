@@ -1,0 +1,114 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style x:Key="ToolTip.App" TargetType="ToolTip">
+        <Setter Property="Height" Value="30" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+    </Style>
+
+    <Style x:Key="ToolTip.App.Placement.Left" TargetType="ToolTip" BasedOn="{StaticResource ToolTip.App}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToolTip">
+                    <Grid>
+                        <Path HorizontalAlignment="Right" 
+                              VerticalAlignment="Center"
+                              Fill="Black"
+                              Data="M 8,5 L 0,0 L 0,10 Z"/>
+
+                        <Border Background="Black"
+                                CornerRadius="4"
+                                Margin="0,0,8,0">
+                            <TextBlock Text="{TemplateBinding Content}"
+                                       Foreground="White"
+                                       FontWeight="Bold"
+                                       FontSize="12"
+                                       Margin="10,5"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <Style x:Key="ToolTip.App.Placement.Right" TargetType="ToolTip" BasedOn="{StaticResource ToolTip.App}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToolTip">
+                    <Grid>
+                        <Path HorizontalAlignment="Left" 
+                              VerticalAlignment="Center"
+                              Fill="Black"
+                              Data="M 0,5 L 8,0 L 8,10 Z"/>
+                        
+                        <Border Background="Black"
+                                CornerRadius="4"
+                                Margin="8,0,0,0">
+                            <TextBlock Text="{TemplateBinding Content}"
+                                       Foreground="White"
+                                       FontWeight="Bold"
+                                       FontSize="12"
+                                       Margin="10,5"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ToolTip.App.Placement.Top" TargetType="ToolTip" BasedOn="{StaticResource ToolTip.App}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToolTip">
+                    <Grid>
+                        <Path HorizontalAlignment="Center" 
+                              VerticalAlignment="Bottom"
+                              Fill="Black"
+                              Data="M 5,8 L 0,0 L 10,0 Z" />
+                        <Border Background="Black"
+                                CornerRadius="4"
+                                Margin="0,0,0,8">
+                            <TextBlock Text="{TemplateBinding Content}"
+                                       Foreground="White"
+                                       FontWeight="Bold"
+                                       FontSize="12"
+                                       Margin="10,5"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ToolTip.App.Placement.Bottom" TargetType="ToolTip" BasedOn="{StaticResource ToolTip.App}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToolTip">
+                    <Grid>
+                        <Path HorizontalAlignment="Center" 
+                              VerticalAlignment="Top"
+                              Fill="Black"
+                              Data="M 5,0 L 0,8 L 10,8 Z" />
+
+                        <Border Background="Black"
+                                CornerRadius="4"
+                                Margin="0,8,0,0">
+                            <TextBlock Text="{TemplateBinding Content}"
+                                       Foreground="White"
+                                       FontWeight="Bold"
+                                       FontSize="12"
+                                       Margin="10,5"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

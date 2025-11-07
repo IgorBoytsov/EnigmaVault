@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
                     xmlns:attach="clr-namespace:EnigmaVault.Desktop.Resources.Attachable">
     
-    <!--#region Страница SideMenu -->
+    <!--#region SideMenu на страницах-->
 
     <Style x:Key="Button.Page.SideMenu.Management" TargetType="Button">
         <Setter Property="Margin" Value="5,2,0,0"/>
@@ -64,7 +64,7 @@
 
     <!--#endregion-->
 
-    <!--#region MainWindow -->
+    <!--#region SideMenu в MainWindow -->
 
     <Style x:Key="Button.MainWindow.SideMenu" TargetType="Button">
         <Setter Property="BorderThickness" Value="4,0,0,0"/>
@@ -72,6 +72,7 @@
         <Setter Property="Foreground" Value="#F0F1F3"/>
         <Setter Property="HorizontalAlignment" Value="Right"/>
         <Setter Property="Margin" Value="0,0,0,3"/>
+        <Setter Property="ToolTipService.InitialShowDelay" Value="300"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -88,7 +89,7 @@
                                         FontSize="{TemplateBinding FontSize}"
                                         Foreground="{TemplateBinding Foreground}"
                                         Content="{TemplateBinding Content}" 
-                                        Margin="7"/>
+                                        Margin="2"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="true">
@@ -113,8 +114,6 @@
     <!--#region Управление окном -->
 
     <Style x:Key="Button.Management.Window" TargetType="Button">
-        <Setter Property="Height" Value="30"/>
-        <Setter Property="Width" Value="30"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -136,11 +135,10 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="true">
-                            <Setter TargetName="buttonBorder" Property="Background" Value="{StaticResource Button.Management.Window.Background.IsMouseOver}"/>
-                            <!--<Setter TargetName="buttonBorder" Property="BorderBrush" Value="{StaticResource Button.SideMenu.BorderBrush}"/>-->
+                            <Setter TargetName="buttonBorder" Property="Background" Value="{StaticResource Button.MouseOver.Bacground}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="true">
-                            <Setter TargetName="buttonBorder" Property="Background" Value="{StaticResource Button.SideMenu.Background}"/>
+                            <Setter TargetName="buttonBorder" Property="Background" Value="{StaticResource Button.Pressed.Bacground}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -148,6 +146,8 @@
         </Setter>
     </Style>
 
+    
+    
     <!--#endregion-->
 
     <!--#region Базовая кнопка -->

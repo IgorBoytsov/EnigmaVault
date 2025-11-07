@@ -29,10 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Factories\Pages\" />
-    <Folder Include="ViewModels\Pages\" />
     <Folder Include="Models\" />
-    <Folder Include="Views\Pages\" />
   </ItemGroup>
 
   <ItemGroup>

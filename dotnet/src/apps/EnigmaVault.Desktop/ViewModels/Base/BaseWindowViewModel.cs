@@ -28,12 +28,14 @@ namespace EnigmaVault.Desktop.ViewModels.Base
 
         /*--Команды---------------------------------------------------------------------------------------*/
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanOpenPage))]
         private void OpenPage(PagesName page)
         {
             _pageNavigation?.Navigate(page, FramesName.MainFrame);
             CurrentOpenPage = _pageNavigation!.GetCurrentDisplayedPage(FramesName.MainFrame);
         }
+
+        private bool CanOpenPage(PagesName pagesName) => CurrentOpenPage != pagesName;
 
         [RelayCommand]
         private void ShutDownApp() => System.Windows.Application.Current.Shutdown();
@@ -45,7 +47,7 @@ namespace EnigmaVault.Desktop.ViewModels.Base
         private void MaximizeWindow(WindowsName windowName) => _windowNavigation!.MaximizeWindow(windowName);
 
         [RelayCommand]
-        private void RestoreWindowCommand(WindowsName windowName) => _windowNavigation!.RestoreWindow(windowName);
+        private void RestoreWindow(WindowsName windowName) => _windowNavigation!.RestoreWindow(windowName);
 
         [RelayCommand]
         private void CloseWindow(WindowsName windowName) => _windowNavigation!.Close(windowName);
