@@ -21,6 +21,7 @@ namespace EnigmaVault.PasswordService.Infrastructure.Ioc
             services.AddScoped<IIconRepository, IconRepository>();
             services.AddScoped<IIconCategoryRepository, IconCategoryRepository>();
             services.AddScoped<IFolderRepository, FolderRepository>();
+            services.AddScoped<ITagRepository, TagRepository>();
 
             return services;
         }
