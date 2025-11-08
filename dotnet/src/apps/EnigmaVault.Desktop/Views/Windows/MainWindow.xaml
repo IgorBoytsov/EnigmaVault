@@ -10,7 +10,9 @@
         mc:Ignorable="d"
         WindowStyle="ThreeDBorderWindow"
         WindowStartupLocation="CenterScreen"
-        Title="MainWindow" Height="450" Width="800">
+        Height="480" Width="800"
+        MinHeight="700" MinWidth="1100"
+        Title="MainWindow">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"
@@ -111,65 +113,68 @@
                 </Grid.ColumnDefinitions>
 
                 <!--#region Боковое меню -->
+
+                <Border Background="{StaticResource App.SurfaceBrush}" 
+                        BorderBrush="#30363D"
+                        BorderThickness="0,0,1.5,0">
+                    <DockPanel>
+                        <Button Command="{Binding OpenPageCommand}"
+                                CommandParameter="{x:Static enums:PagesName.Password}"
+                                Style="{StaticResource Button.MainWindow.SideMenu}"
+                                DockPanel.Dock="Top">
+                            <Button.ToolTip>
+                                <ToolTip Content="Пароли" 
+                                         Placement="Custom"
+                                         PlacementTarget="{Binding ElementName=BtnClose}"
+                                         CustomPopupPlacementCallback="{Binding RightToolTipController.CustomPlacementCallback}"
+                                         Style="{StaticResource ToolTip.App.Placement.Right}"/>
+                            </Button.ToolTip>
+                            <StackPanel>
+                                <Viewbox>
+                                    <Control Template="{StaticResource PasswordKey}" Foreground="White"/>
+                                </Viewbox>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding OpenPageCommand}"
+                                CommandParameter="{x:Static enums:PagesName.Secret}"
+                                Style="{StaticResource Button.MainWindow.SideMenu}"
+                                DockPanel.Dock="Top">
+                            <Button.ToolTip>
+                                <ToolTip Content="Секреты" 
+                                         Placement="Custom"
+                                         PlacementTarget="{Binding ElementName=BtnClose}"
+                                         CustomPopupPlacementCallback="{Binding RightToolTipController.CustomPlacementCallback}"
+                                         Style="{StaticResource ToolTip.App.Placement.Right}"/>
+                            </Button.ToolTip>
+                            <StackPanel>
+                                <Viewbox>
+                                    <Control Template="{StaticResource Lock}" Foreground="White"/>
+                                </Viewbox>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding OpenPageCommand}"
+                                CommandParameter="{x:Static enums:PagesName.Setting}"
+                                Style="{StaticResource Button.App}"
+                                VerticalAlignment="Bottom">
+                            <Button.ToolTip>
+                                <ToolTip Content="Настройки" 
+                                         Placement="Custom"
+                                         PlacementTarget="{Binding ElementName=BtnClose}"
+                                         CustomPopupPlacementCallback="{Binding RightToolTipController.CustomPlacementCallback}"
+                                         Style="{StaticResource ToolTip.App.Placement.Right}"/>
+                            </Button.ToolTip>
+                            <StackPanel>
+                                <Viewbox>
+                                    <Control Template="{StaticResource Setting}" Foreground="White"/>
+                                </Viewbox>
+                            </StackPanel>
+                        </Button>
+
+                    </DockPanel>
+                </Border>
                 
-                <DockPanel>
-
-                    <Button Command="{Binding OpenPageCommand}"
-                            CommandParameter="{x:Static enums:PagesName.Password}"
-                            Style="{StaticResource Button.MainWindow.SideMenu}"
-                            DockPanel.Dock="Top">
-                        <Button.ToolTip>
-                            <ToolTip Content="Пароли" 
-                                     Placement="Custom"
-                                     PlacementTarget="{Binding ElementName=BtnClose}"
-                                     CustomPopupPlacementCallback="{Binding RightToolTipController.CustomPlacementCallback}"
-                                     Style="{StaticResource ToolTip.App.Placement.Right}"/>
-                        </Button.ToolTip>
-                        <StackPanel>
-                            <Viewbox>
-                                <Control Template="{StaticResource PasswordKey}" Foreground="White"/>
-                            </Viewbox>
-                        </StackPanel>
-                    </Button>
-
-                    <Button Command="{Binding OpenPageCommand}"
-                            CommandParameter="{x:Static enums:PagesName.Secret}"
-                            Style="{StaticResource Button.MainWindow.SideMenu}"
-                            DockPanel.Dock="Top">
-                        <Button.ToolTip>
-                            <ToolTip Content="Секреты" 
-                                     Placement="Custom"
-                                     PlacementTarget="{Binding ElementName=BtnClose}"
-                                     CustomPopupPlacementCallback="{Binding RightToolTipController.CustomPlacementCallback}"
-                                     Style="{StaticResource ToolTip.App.Placement.Right}"/>
-                        </Button.ToolTip>
-                        <StackPanel>
-                            <Viewbox>
-                                <Control Template="{StaticResource Lock}" Foreground="White"/>
-                            </Viewbox>
-                        </StackPanel>
-                    </Button>
-
-                    <Button Command="{Binding OpenPageCommand}"
-                            CommandParameter="{x:Static enums:PagesName.Setting}"
-                            Style="{StaticResource Button.MainWindow.SideMenu}"
-                            VerticalAlignment="Bottom">
-                        <Button.ToolTip>
-                            <ToolTip Content="Настройки" 
-                                     Placement="Custom"
-                                     PlacementTarget="{Binding ElementName=BtnClose}"
-                                     CustomPopupPlacementCallback="{Binding RightToolTipController.CustomPlacementCallback}"
-                                     Style="{StaticResource ToolTip.App.Placement.Right}"/>
-                        </Button.ToolTip>
-                        <StackPanel>
-                            <Viewbox>
-                                <Control Template="{StaticResource Setting}" Foreground="White"/>
-                            </Viewbox>
-                        </StackPanel>
-                    </Button>
-
-                </DockPanel>
-
                 <!--#endregion-->
                 
                 <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden" Visibility="Visible" Grid.Column="1"/>

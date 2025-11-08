@@ -208,7 +208,7 @@
                         <Button Content="Продолжить"
                                 DockPanel.Dock="Bottom"
                                 Command="{Binding Login.LoginCommand}"
-                                Style="{StaticResource Button.App.VisibleWhenDisabled.WithOutAnimation}"
+                                Style="{StaticResource Button.App}"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom"
                                 FontWeight="Bold"
@@ -221,7 +221,7 @@
 
                         <Button Content="Зарегестрироваться"
                                 DockPanel.Dock="Bottom"
-                                Style="{StaticResource Button.App.VisibleWhenDisabled.WithOutAnimation}"
+                                Style="{StaticResource Button.App}"
                                 Command="{Binding Registration.RegisterCommand}"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom"
@@ -256,7 +256,8 @@
                             Grid.Column="2"
                             Command="{Binding SwitchAuthenticationControlCommand}"
                             CommandParameter="{x:Static enum:AuthenticationType.Authentication}"
-                            Style="{StaticResource Button.App.VisibleWhenDisabled.WithOutAnimation}"
+                            Style="{StaticResource Button.App}"
+                            HorizontalAlignment="Stretch"
                             FontWeight="Bold"
                             FontSize="16"/>
 
@@ -264,7 +265,8 @@
                             Grid.Column="2"
                             Command="{Binding SwitchRegistrationControlCommand}"
                             CommandParameter="{x:Static enum:AuthenticationType.Registration}"
-                            Style="{StaticResource Button.App.VisibleWhenDisabled.WithOutAnimation}"
+                            Style="{StaticResource Button.App}"
+                            HorizontalAlignment="Stretch"
                             FontWeight="Bold"
                             FontSize="16"/>
 
@@ -272,7 +274,8 @@
                             Grid.Column="2"
                             Command="{Binding SwitchRecoveryAccessControlCommand}"
                             CommandParameter="{x:Static enum:AuthenticationType.RecoveryAccess}"
-                            Style="{StaticResource Button.App.VisibleWhenDisabled.WithOutAnimation}"
+                            Style="{StaticResource Button.App}"
+                            HorizontalAlignment="Stretch"
                             FontWeight="Bold"
                             FontSize="16"/>
 
