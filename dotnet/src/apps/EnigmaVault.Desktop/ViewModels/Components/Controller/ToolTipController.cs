@@ -8,10 +8,13 @@ namespace EnigmaVault.Desktop.ViewModels.Components.Controller
 {
     public sealed partial class ToolTipController : BaseViewModel
     {
-        private const double PlacementOffset = 8.0;
+        //private const double PlacementOffset = 8.0;
 
-        public ToolTipController(ToolTipPlacement placement)
+        public ToolTipController(ToolTipPlacement placement, double horizontalOffset = 0, double verticalOffset = 0)
         {
+            HorizontalOffset = horizontalOffset;
+            VerticalOffset = verticalOffset;
+
             CustomPlacementCallback = placement switch
             {
                 ToolTipPlacement.CenterLeft => PlaceCenterLeft,
@@ -28,29 +31,38 @@ namespace EnigmaVault.Desktop.ViewModels.Components.Controller
         [ObservableProperty]
         private object? _content;
 
+        [ObservableProperty]
+        private double _horizontalOffset;
+
+        [ObservableProperty]
+        private double _verticalOffset;
+
         public CustomPopupPlacementCallback CustomPlacementCallback { get; }
 
         private CustomPopupPlacement[] PlaceCenterRight(Size toolTipSize, Size targetSize, Point offset)
         {
-            var position = new Point(targetSize.Width + PlacementOffset, (targetSize.Height - toolTipSize.Height) / 2);
+            var position = new Point(
+                targetSize.Width  + HorizontalOffset,
+                (targetSize.Height - toolTipSize.Height) / 2 + (VerticalOffset)
+            );
             return [new CustomPopupPlacement(position, PopupPrimaryAxis.Horizontal)];
         }
 
         private CustomPopupPlacement[] PlaceCenterLeft(Size toolTipSize, Size targetSize, Point offset)
         {
-            var position = new Point(-toolTipSize.Width - PlacementOffset, (targetSize.Height - toolTipSize.Height) / 2);
+            var position = new Point(-toolTipSize.Width + HorizontalOffset, (targetSize.Height - toolTipSize.Height) / 2 + (VerticalOffset));
             return [new CustomPopupPlacement(position, PopupPrimaryAxis.Horizontal)];
         }
 
         private CustomPopupPlacement[] PlaceCenterTop(Size toolTipSize, Size targetSize, Point offset)
         {
-            var position = new Point((targetSize.Width - toolTipSize.Width) / 2, -toolTipSize.Height - PlacementOffset);
+            var position = new Point((targetSize.Width - toolTipSize.Width) / 2 + (HorizontalOffset), -toolTipSize.Height + VerticalOffset);
             return [new CustomPopupPlacement(position, PopupPrimaryAxis.Vertical)];
         }
 
         private CustomPopupPlacement[] PlaceCenterBottom(Size toolTipSize, Size targetSize, Point offset)
         {
-            var position = new Point((targetSize.Width - toolTipSize.Width) / 2, targetSize.Height + PlacementOffset);
+            var position = new Point((targetSize.Width - toolTipSize.Width) / 2 + (HorizontalOffset), targetSize.Height + VerticalOffset);
             return [new CustomPopupPlacement(position, PopupPrimaryAxis.Vertical)];
         }
     }
