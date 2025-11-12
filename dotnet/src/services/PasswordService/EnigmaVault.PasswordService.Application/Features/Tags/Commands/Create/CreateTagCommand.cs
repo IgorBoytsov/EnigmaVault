@@ -5,7 +5,7 @@ using Unit = Common.Core.Results.Unit;
 
 namespace EnigmaVault.PasswordService.Application.Features.Tags.Commands.Create
 {
-    public sealed record CreateTagCommand(Guid UserId, string Name) : IRequest<Result<Unit>>,
+    public sealed record CreateTagCommand(Guid UserId, string Name, string Color) : IRequest<Result<Guid>>,
         IMustHasUserId,
         IHasName;
 }

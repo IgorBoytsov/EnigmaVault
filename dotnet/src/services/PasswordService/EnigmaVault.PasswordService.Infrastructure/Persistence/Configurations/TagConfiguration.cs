@@ -1,4 +1,5 @@
 ﻿using EnigmaVault.PasswordService.Domain.Models;
+using EnigmaVault.PasswordService.Domain.ValueObjects.Common;
 using EnigmaVault.PasswordService.Domain.ValueObjects.Tag;
 using EnigmaVault.PasswordService.Domain.ValueObjects.User;
 using EnigmaVault.PasswordService.Infrastructure.Persistence.Constants;
@@ -28,6 +29,11 @@ namespace EnigmaVault.PasswordService.Infrastructure.Persistence.Configurations
                 .HasColumnName("IconName")
                 .HasConversion(name => name.Value, dbValue => TagName.Create(dbValue))
                 .UseCollation(PostgresConstants.COLLATION_NAME);
+
+            builder.Property(f => f.Color)
+                .HasColumnName("Color")
+                .HasConversion(color => color.Value, dbValue => Color.FromHex(dbValue))
+                .IsRequired(true);
         }
     }
 }

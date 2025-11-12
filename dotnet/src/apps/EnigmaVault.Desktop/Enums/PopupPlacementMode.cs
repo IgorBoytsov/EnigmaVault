@@ -1,8 +1,9 @@
 ﻿namespace EnigmaVault.Desktop.Enums
 {
-    internal enum PopupPlacementMode
+    public enum PopupPlacementMode
     {
         Default,
-        CustomRightUp
+        CustomRightUp,
+        CustomBottom,
     }
 }

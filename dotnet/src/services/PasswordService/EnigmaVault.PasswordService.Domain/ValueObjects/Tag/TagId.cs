@@ -20,6 +20,8 @@ namespace EnigmaVault.PasswordService.Domain.ValueObjects.Tag
 
         public static TagId New() => new(Guid.NewGuid());
 
+        public override string ToString() => Value.ToString();
+
         public static implicit operator Guid(TagId value) => value.Value;
     }
 }

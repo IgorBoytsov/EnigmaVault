@@ -1,4 +1,5 @@
 ﻿using EnigmaVault.Authentication.ApiClient.HttpClients;
+using EnigmaVault.PasswordService.ApiClient.Clients;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +18,11 @@ namespace EnigmaVault.Desktop.Ioc
             const string userManagementServiceApiClientName = "UserManagementApiClient";
             services.AddHttpClient(userManagementServiceApiClientName, client => client.BaseAddress = new Uri(userManagementServiceApiUrl!));
             services.AddHttpClient<IUserManagementService, UserManagementService>(userManagementServiceApiClientName);
+
+            string? passwordServiceApiUrl = configuration.GetValue<string>("BasePasswordServiceUrl");
+            const string passwordServiceApiClientName = "PasswordApiClient";
+            services.AddHttpClient(passwordServiceApiClientName, client => client.BaseAddress = new Uri(passwordServiceApiUrl!));
+            services.AddHttpClient<ITagService, TagService>(passwordServiceApiClientName);
 
             return services;
         }

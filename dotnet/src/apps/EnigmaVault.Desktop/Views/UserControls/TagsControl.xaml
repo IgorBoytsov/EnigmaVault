@@ -3,25 +3,217 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:EnigmaVault.Desktop.Views.UserControls"
-             mc:Ignorable="d">
+             xmlns:local="clr-namespace:EnigmaVault.Desktop.Views.UserControls" 
+             xmlns:converters="clr-namespace:EnigmaVault.Desktop.Resources.ValueConverters" 
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             mc:Ignorable="d"
+             x:Name="currentControl">
+
+    <UserControl.Resources>
+        <converters:RgbToSolidColorBrushConverter x:Key="RgbToSolidColorBrushConverter"/>
+        <converters:OnlyIntConverter x:Key="OnlyIntConverter"/>
+    </UserControl.Resources>
+    
     <Grid>
-        <ListView d:ItemsSource="{d:SampleData ItemCount=5}"
-                  Style="{StaticResource ListView.App}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!--==========Popups==========-->
+
+        <!--#region Редактирование -->
+
+        <Popup IsOpen="{Binding EditPopupController.IsOpen, RelativeSource={RelativeSource AncestorType=UserControl}}"
+               StaysOpen="False"
+               PlacementTarget="{Binding EditPopupController.PlacementTarget, RelativeSource={RelativeSource AncestorType=UserControl}}"
+               Placement="Right"
+               AllowsTransparency="True"
+               PopupAnimation="Slide"
+               MaxWidth="300">
+
+            <Border Background="{StaticResource App.SurfaceBrush}"
+                    BorderBrush="White"
+                    BorderThickness="0.5"
+                    Padding="10" 
+                    CornerRadius="5">
+                <Grid VerticalAlignment="Bottom">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBox Grid.ColumnSpan="3" Grid.Row="0"
+                             Text="{Binding SelectedTag.TagName, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}" 
+                             Style="{StaticResource TextBox.InputData}"
+                             Margin="10,0,10,10">
+                        <TextBlock.Foreground>
+                            <MultiBinding Converter="{StaticResource RgbToSolidColorBrushConverter}">
+                                <Binding ElementName="UpdateRedTextBox" Path="Text" />
+                                <Binding ElementName="UpdateGreenTextBox" Path="Text" />
+                                <Binding ElementName="UpdateBlueTextBox" Path="Text" />
+                            </MultiBinding>
+                        </TextBlock.Foreground>
+                    </TextBox>
+
+                    <TextBlock Text="R" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" Foreground="White" Margin="0,0,10,0"/>
+                    <TextBlock Text="G" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" Foreground="White" Margin="0,0,10,0"/>
+                    <TextBlock Text="B" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Center" Foreground="White" Margin="0,0,10,0"/>
+
+                    <TextBox x:Name="UpdateRedTextBox" Text="{Binding UpdateRed, Converter={StaticResource OnlyIntConverter}, ElementName=currentControl, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="2" Width="50" Margin="0,0,10,0" Style="{StaticResource TextBox.InputData}" HorizontalContentAlignment="Center"/>
+                    <TextBox x:Name="UpdateGreenTextBox" Text="{Binding UpdateGreen, Converter={StaticResource OnlyIntConverter}, ElementName=currentControl, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="2" Width="50" Margin="0,0,10,0" Style="{StaticResource TextBox.InputData}" HorizontalContentAlignment="Center"/>
+                    <TextBox x:Name="UpdateBlueTextBox" Text="{Binding UpdateBlue, Converter={StaticResource OnlyIntConverter}, ElementName=currentControl, UpdateSourceTrigger=PropertyChanged}" Grid.Column="2" Grid.Row="2" Width="50" Margin="0,0,10,0" Style="{StaticResource TextBox.InputData}" HorizontalContentAlignment="Center"/>
+                </Grid>
+            </Border>
+        </Popup>
+
+        <!--#endregion-->
+        
+        <!--#region Выбор цвета -->
+
+        <Popup IsOpen="{Binding PalettePopupController.IsOpen, RelativeSource={RelativeSource AncestorType=UserControl}}"
+               StaysOpen="False"
+               PlacementTarget="{Binding PalettePopupController.PlacementTarget, RelativeSource={RelativeSource AncestorType=UserControl}}"
+               Placement="Right"
+               AllowsTransparency="True"
+               PopupAnimation="Slide"
+               MaxWidth="300">
+
+            <Border Background="{StaticResource App.SurfaceBrush}"
+                    BorderBrush="White"
+                    BorderThickness="0.5"
+                    Padding="10" 
+                    CornerRadius="5">
+                <Grid VerticalAlignment="Bottom">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="R" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" Foreground="White" Margin="0,0,10,0"/>
+                    <TextBlock Text="G" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" Foreground="White" Margin="0,0,10,0"/>
+                    <TextBlock Text="B" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Center" Foreground="White" Margin="0,0,10,0"/>
+
+                    <TextBox x:Name="RedTextBox" Text="{Binding Red, Converter={StaticResource OnlyIntConverter}, ElementName=currentControl, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="2" Width="50" Margin="0,0,10,0" Style="{StaticResource TextBox.InputData}" HorizontalContentAlignment="Center"/>
+                    <TextBox x:Name="GreenTextBox" Text="{Binding Green, Converter={StaticResource OnlyIntConverter}, ElementName=currentControl, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="2" Width="50" Margin="0,0,10,0" Style="{StaticResource TextBox.InputData}" HorizontalContentAlignment="Center"/>
+                    <TextBox x:Name="BlueTextBox" Text="{Binding Blue, Converter={StaticResource OnlyIntConverter}, ElementName=currentControl, UpdateSourceTrigger=PropertyChanged}" Grid.Column="2" Grid.Row="2" Width="50" Margin="0,0,10,0" Style="{StaticResource TextBox.InputData}" HorizontalContentAlignment="Center"/>
+                </Grid>
+            </Border>
+        </Popup>
+
+        <!--#endregion-->
+
+        <!--=========Controls==========-->
+
+        <!--#region Добавление -->
+        
+        <DockPanel HorizontalAlignment="Stretch" Margin="0,5,0,5">
+
+            <Button Command="{Binding CreateTagCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                    Style="{StaticResource Button.App}"
+                    Margin="0" Padding="0"
+                    Width="25"
+                    DockPanel.Dock="Right">
+                <StackPanel>
+                    <Viewbox>
+                        <Control Template="{StaticResource Plus}" Foreground="Green"/>
+                    </Viewbox>
+                </StackPanel>
+            </Button>
+
+            <Button x:Name="PalletButton" Command="{Binding PalettePopupController.ShowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                    CommandParameter="{Binding ElementName=PalletButton}"
+                    Style="{StaticResource Button.App}"
+                    Margin="0" Padding="3"
+                    Width="25"
+                    DockPanel.Dock="Right">
+                <StackPanel>
+                    <Viewbox>
+                        <Control Template="{StaticResource PaintBucket}" Foreground="White"/>
+                    </Viewbox>
+                </StackPanel>
+            </Button>
+
+            <TextBox x:Name="txbTagName"
+                     Text="{Binding TagName, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}" 
+                     Style="{StaticResource TextBox.InputData}"
+                     DockPanel.Dock="Left">
+                <TextBlock.Foreground>
+                    <MultiBinding Converter="{StaticResource RgbToSolidColorBrushConverter}">
+                        <Binding ElementName="RedTextBox" Path="Text" />
+                        <Binding ElementName="GreenTextBox" Path="Text" />
+                        <Binding ElementName="BlueTextBox" Path="Text" />
+                    </MultiBinding>
+                </TextBlock.Foreground>
+            </TextBox>
+
+        </DockPanel>
+
+        <!--#endregion-->
+
+        <!--#region Список -->
+       
+        <ListView Grid.Row="1" 
+                  ItemsSource="{Binding Tags, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}" d:ItemsSource="{d:SampleData ItemCount=5}"
+                  SelectedItem="{Binding SelectedTag, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"
+                  Style="{StaticResource ListView.App}" 
+                  SelectionMode="Single"
+                  ScrollViewer.CanContentScroll="False"
+                  VirtualizingPanel.ScrollUnit="Pixel"
+                  ScrollViewer.VerticalScrollBarVisibility="Visible"
+                  VirtualizingPanel.IsVirtualizing="True"
+                  VirtualizingStackPanel.VirtualizationMode="Recycling"
+                  VirtualizingPanel.CacheLength="15,15"
+                  VirtualizingPanel.CacheLengthUnit="Item"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <DockPanel>
+                    <DockPanel Background="Transparent">
 
-                        <TextBlock Text="{Binding}" 
-                                           TextWrapping="NoWrap" 
-                                           TextTrimming="CharacterEllipsis"
-                                           DockPanel.Dock="Left"/>
-
-                        <Button Command="{Binding}"
-                                        Style="{StaticResource Button.ListView.Menagement}"
-                                        Margin="0"
-                                        Width="20"
-                                        HorizontalAlignment="Right">
+                        <Button Command="{Binding DeleteTagCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                Margin="0,0,5,0"
+                                Width="19"
+                                DockPanel.Dock="Right"
+                                Tag="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}">
+                            <Button.ToolTip>
+                                <ToolTip Content="Удалить" 
+                                         Placement="Custom"
+                                         CustomPopupPlacementCallback="{Binding Path=PlacementTarget.Tag.(local:TagsControl.TopToolTipController).CustomPlacementCallback, RelativeSource={RelativeSource Self}}"
+                                         Style="{StaticResource ToolTip.App.Placement.Top}"/>
+                            </Button.ToolTip>
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource Button.ListView.Menagement}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListViewItem}}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListViewItem}}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <b:Interaction.Triggers>
+                                <b:EventTrigger EventName="Click">
+                                    <b:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}}"
+                                                            PropertyName="IsSelected"
+                                                            Value="True" />
+                                </b:EventTrigger>
+                            </b:Interaction.Triggers>
                             <StackPanel>
                                 <Viewbox>
                                     <Control Template="{StaticResource Trash}" Foreground="#A53936"/>
@@ -29,9 +221,158 @@
                             </StackPanel>
                         </Button>
 
+                        <Button x:Name="EditButton"
+                                Command="{Binding EditPopupController.ShowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding ElementName=EditButton}"
+                                Margin="0,0,5,0"
+                                Width="19"
+                                DockPanel.Dock="Right"
+                                Tag="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}">
+                            <Button.ToolTip>
+                                <ToolTip Content="Редактировать" 
+                                         Placement="Custom"
+                                         CustomPopupPlacementCallback="{Binding Path=PlacementTarget.Tag.(local:TagsControl.TopToolTipController).CustomPlacementCallback, RelativeSource={RelativeSource Self}}"
+                                         Style="{StaticResource ToolTip.App.Placement.Top}"/>
+                            </Button.ToolTip>
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource Button.ListView.Menagement}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListViewItem}}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListViewItem}}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <StackPanel>
+                                <Viewbox>
+                                    <Control Template="{StaticResource Edit}" Foreground="#F2F104"/>
+                                </Viewbox>
+                            </StackPanel>
+                            <b:Interaction.Triggers>
+                                <b:EventTrigger EventName="Click">
+                                    <b:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}}"
+                                                            PropertyName="IsSelected"
+                                                            Value="True" />
+                                </b:EventTrigger>
+                            </b:Interaction.Triggers>
+                        </Button>
+
+                        <Button x:Name="SaveButton"
+                                Command="{Binding SaveTagCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding ElementName=SaveButton}"
+                                Margin="0,0,5,0"
+                                Width="19"
+                                DockPanel.Dock="Right"
+                                Tag="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}">
+                            <Button.ToolTip>
+                                <ToolTip Content="Сохранить" 
+                                         Placement="Custom"
+                                         CustomPopupPlacementCallback="{Binding Path=PlacementTarget.Tag.(local:TagsControl.TopToolTipController).CustomPlacementCallback, RelativeSource={RelativeSource Self}}"
+                                         Style="{StaticResource ToolTip.App.Placement.Top}"/>
+                            </Button.ToolTip>
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource Button.ListView.Menagement}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasChanges}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding HasChanges}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <StackPanel>
+                                <Viewbox>
+                                    <Control Template="{StaticResource Save}" Foreground="#F2F104"/>
+                                </Viewbox>
+                            </StackPanel>
+                            <b:Interaction.Triggers>
+                                <b:EventTrigger EventName="Click">
+                                    <b:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}}"
+                                                            PropertyName="IsSelected"
+                                                            Value="True" />
+                                </b:EventTrigger>
+                            </b:Interaction.Triggers>
+                        </Button>
+
+                        <TextBlock Text="{Binding TagName}" 
+                                   Foreground="{Binding Color}"
+                                   FontSize="16"
+                                   FontWeight="Bold"
+                                   TextWrapping="NoWrap" 
+                                   TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center">
+                        </TextBlock>
+
                     </DockPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>
+
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Padding" Value="5"/>
+                    <Setter Property="Margin" Value="0,1,0,0"/>
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="BorderBrush" Value="Transparent"/>
+                    <!--<Setter Property="BorderThickness" Value="5,0,0,0"/>-->
+                    <Setter Property="Tag" Value="{Binding RelativeSource={RelativeSource AncestorType=local:TagsControl}}"/>
+                    <Setter Property="ToolTip">
+                        <Setter.Value>
+                            <ToolTip Content="{Binding TagName}"
+                                     HorizontalOffset="{Binding Path=PlacementTarget.Tag.(local:TagsControl.RightToolTipListViewItemController).HorizontalOffset, RelativeSource={RelativeSource Self}}"
+                                     VerticalOffset="{Binding Path=PlacementTarget.Tag.(local:TagsControl.RightToolTipListViewItemController).VerticalOffset, RelativeSource={RelativeSource Self}}"                                    
+                                     Placement="Custom"
+                                     CustomPopupPlacementCallback="{Binding Path=PlacementTarget.Tag.(local:TagsControl.RightToolTipListViewItemController).CustomPlacementCallback, RelativeSource={RelativeSource Self}}"
+                                     Style="{StaticResource ToolTip.App.Placement.Right}"/>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListViewItem">
+                                <Border x:Name="mainBorder"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        Padding="{TemplateBinding Padding}"
+                                        Margin="{TemplateBinding Margin}"
+                                        SnapsToDevicePixels="true"
+                                        CornerRadius="5">
+
+                                    <ContentPresenter/>
+
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <!--<Setter Property="Background" Value="#424242"/>-->
+                            <Setter Property="Background" Value="#1E2F3A"/>
+                            <!--<Setter Property="BorderBrush" Value="#0095F6"/>-->
+                            <!--<Setter Property="BorderThickness" Value="5,0,0,0"/>-->
+                            <Setter Property="Foreground" Value="#50A7E7"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <!--<Setter Property="Background" Value="#424242"/>-->
+                            <Setter Property="Background" Value="#1E2F3A"/>
+                            <!--<Setter Property="BorderBrush" Value="#0095F6"/>-->
+                            <!--<Setter Property="BorderThickness" Value="5,0,0,0"/>-->
+                            <Setter Property="Foreground" Value="#50A7E7"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+
+            </ListView.ItemContainerStyle>
+
         </ListView>
+
+        <!--#endregion-->
+
     </Grid>
 </UserControl>

@@ -1,6 +1,7 @@
 ﻿using EnigmaVault.Authentication.ApiClient.HttpClients;
 using EnigmaVault.Desktop.Enums;
 using EnigmaVault.Desktop.Services.Managers;
+using EnigmaVault.Desktop.Services.PageNavigation;
 using Shared.Contracts.Requests;
 using Shared.WPF.Navigations.Windows;
 
@@ -9,11 +10,13 @@ namespace EnigmaVault.Desktop.Services.Initializers
     internal class ApplicationInitializer(
         ITokenManager tokenManager,
         IAuthService authService,
-        IWindowNavigation windowNavigation) : IApplicationInitializer
+        IWindowNavigation windowNavigation,
+        IPageNavigation pageNavigation) : IApplicationInitializer
     {
         private readonly ITokenManager _tokenManager = tokenManager;
         private readonly IAuthService _authService = authService;
         private readonly IWindowNavigation _windowNavigation = windowNavigation;
+        private readonly IPageNavigation _pageNavigation = pageNavigation;
 
         public void InitializeAsync()
         {
@@ -29,6 +32,7 @@ namespace EnigmaVault.Desktop.Services.Initializers
                         {
                             _tokenManager.SaveToken(authResult.Value!.RefreshToken);
                             _windowNavigation.Open(WindowsName.MainWindow);
+                            _pageNavigation.Navigate(PagesName.Password, FramesName.MainFrame);
                         },
                         onFailure: errors => _windowNavigation!.Open(WindowsName.AuthenticationWindow));
                 },

@@ -11,7 +11,8 @@ namespace EnigmaVault.PasswordService.Application.Mappers.Profiles
             CreateMap<Tag, TagResponse>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.Color, opt => opt.MapFrom(src => src.Color));
         }
     }
 }

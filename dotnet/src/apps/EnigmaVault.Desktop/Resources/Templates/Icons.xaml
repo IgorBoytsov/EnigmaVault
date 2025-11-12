@@ -92,6 +92,21 @@
 
     <ControlTemplate x:Key="Trash" TargetType="Control">
         <Viewbox Stretch="Uniform">
+            <Canvas Width="24" Height="24">
+                <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
+                      StrokeThickness="2"
+                      StrokeStartLineCap="Round"
+                      StrokeLineJoin="Round"
+                      Data="
+                      M19 6 V20 A2 2 0 0 1 17 22 H7 A2 2 0 0 1 5 20 V6
+                      M3 6 H21
+                      M8 6 V4 A2 2 0 0 1 10 2 H14 A2 2 0 0 1 16 4 V6"/>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <!--<ControlTemplate x:Key="Trash" TargetType="Control">
+        <Viewbox Stretch="Uniform">
             <Canvas Width="456" Height="511.82">
                 <Path Fill="{TemplateBinding Foreground}"
                       Data="
@@ -156,9 +171,9 @@
                       z" />
             </Canvas>
         </Viewbox>
-    </ControlTemplate>
+    </ControlTemplate>-->
 
-    <ControlTemplate x:Key="Archive" TargetType="Control">
+    <!--<ControlTemplate x:Key="Archive" TargetType="Control">
         <Viewbox Stretch="Uniform">
             <Canvas Width="128.889" Height="116.15">
                 <Path Fill="Transparent" Stroke="White" StrokeThickness="6.0092"
@@ -213,7 +228,7 @@
                       z"/>
             </Canvas>
         </Viewbox>
-    </ControlTemplate>
+    </ControlTemplate>-->
 
     <ControlTemplate x:Key="Updated" TargetType="Control">
         <Viewbox Stretch="Uniform">
@@ -675,6 +690,135 @@
                 <Path Fill="{TemplateBinding Foreground}" Data="M4 8C4 9.10457 3.10457 10 2 10C0.895431 10 0 9.10457 0 8C0 6.89543 0.895431 6 2 6C3.10457 6 4 6.89543 4 8Z" />
                 <Path Fill="{TemplateBinding Foreground}" Data="M10 8C10 9.10457 9.10457 10 8 10C6.89543 10 6 9.10457 6 8C6 6.89543 6.89543 6 8 6C9.10457 6 10 6.89543 10 8Z" />
                 <Path Fill="{TemplateBinding Foreground}" Data="M14 10C15.1046 10 16 9.10457 16 8C16 6.89543 15.1046 6 14 6C12.8954 6 12 6.89543 12 8C12 9.10457 12.8954 10 14 10Z" />
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Plus" TargetType="Control">
+        <Viewbox Stretch="Uniform">
+            <Canvas Width="24" Height="24">
+                <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
+                      StrokeThickness="2"
+                      StrokeStartLineCap="Round"
+                      StrokeLineJoin="Round"
+                      Data="M5 12 L19 12 M12 5 L12 19"/>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Palette" TargetType="Control">
+        <Viewbox Stretch="Uniform">
+            <Canvas Width="24" Height="24">
+                <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
+                      StrokeThickness="2"
+                      StrokeStartLineCap="Round"
+                      StrokeLineJoin="Round"
+                      Data="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/>
+                
+                <Path Fill="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}">
+                    <Path.Data>
+                        <GeometryGroup>
+                            <EllipseGeometry Center="13.5,6.5" RadiusX="0.5" RadiusY="0.5" />
+                            <EllipseGeometry Center="17.5,10.5" RadiusX="0.5" RadiusY="0.5" />
+                            <EllipseGeometry Center="6.5,12.5" RadiusX="0.5" RadiusY="0.5" />
+                            <EllipseGeometry Center="8.5,7.5" RadiusX="0.5" RadiusY="0.5" />
+                        </GeometryGroup>
+                    </Path.Data>
+                </Path>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="PaintBucket" TargetType="Control">
+        <Viewbox Stretch="Uniform">
+            <Canvas Width="24" Height="24">
+                <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
+                      StrokeThickness="2"
+                      StrokeStartLineCap="Round"
+                      StrokeLineJoin="Round"
+                      Data="
+                      M 19 11 L 11 3 L 2.4 11.6 A 2 2 0 0 0 2.4 14.4 L 7.6 19.6 C 8.4 20.4 9.6 20.4 10.4 19.6 L 19 11 Z
+                      M 5 2 L 10 7
+                      M 2 13 H 17
+                      M 22 20 A 2 2 0 1 1 18 20 C 18 18.4 19.7 17.6 20 16 C 20.3 17.6 22 18.4 22 20 Z"/>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Clipboard" TargetType="Control">
+        <Viewbox Stretch="Uniform">
+            <Canvas Width="24" Height="24">
+                <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
+                      StrokeThickness="2"
+                      StrokeStartLineCap="Round"
+                      StrokeLineJoin="Round"
+                      Data="
+                      M9 2 H15 A1 1 0 0 1 16 3 V5 A1 1 0 0 1 15 6 H9 A1 1 0 0 1 8 5 V3 A1 1 0 0 1 9 2 Z
+                      M16 4 h2 a2 2 0 0 1 2 2 v14 a2 2 0 0 1-2 2 H6 a2 2 0 0 1-2-2 V6 a2 2 0 0 1 2-2 h2"/>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="ArchiveRestore" TargetType="Control">
+        <Viewbox Stretch="Uniform">
+            <Canvas Width="24" Height="24">
+                <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
+                      StrokeThickness="2"
+                      StrokeStartLineCap="Round"
+                      StrokeLineJoin="Round"
+                      Data="
+                      M3 3 H21 A1 1 0 0 1 22 4 V7 A1 1 0 0 1 21 8 H3 A1 1 0 0 1 2 7 V4 A1 1 0 0 1 3 3 Z
+                      M4 8 V19 A2 2 0 0 0 6 21 H8
+                      M20 8 V19 A2 2 0 0 1 18 21 H16
+                      M9 15 L12 12 L15 15
+                      M12 12 V21"/>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="ArchiveX" TargetType="Control">
+        <Viewbox Stretch="Uniform">
+            <Canvas Width="24" Height="24">
+                <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
+                      StrokeThickness="2"
+                      StrokeStartLineCap="Round"
+                      StrokeLineJoin="Round"
+                      Data="
+                      M3 3 H21 A1 1 0 0 1 22 4 V7 A1 1 0 0 1 21 8 H3 A1 1 0 0 1 2 7 V4 A1 1 0 0 1 3 3 Z
+                      M4 8 V19 A2 2 0 0 0 6 21 H18 A2 2 0 0 0 20 19 V8
+                      M9.5 17 L14.5 12
+                      M9.5 12 L14.5 17"/>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Archive" TargetType="Control">
+        <Viewbox Stretch="Uniform">
+            <Canvas Width="24" Height="24">
+                <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
+                      StrokeThickness="2"
+                      StrokeStartLineCap="Round"
+                      StrokeLineJoin="Round"
+                      Data="
+                      M3 3 H21 A1 1 0 0 1 22 4 V7 A1 1 0 0 1 21 8 H3 A1 1 0 0 1 2 7 V4 A1 1 0 0 1 3 3 Z
+                      M4 8 V19 A2 2 0 0 0 6 21 H18 A2 2 0 0 0 20 19 V8
+                      M10 12 H14"/>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Save" TargetType="Control">
+        <Viewbox Stretch="Uniform">
+            <Canvas Width="24" Height="24">
+                <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
+                      Fill="Transparent"
+                      StrokeThickness="2"
+                      StrokeStartLineCap="Round"
+                      StrokeLineJoin="Round"
+                      Data="
+                      M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z
+                      M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7
+                      M7 3v4a1 1 0 0 0 1 1h7"/>
             </Canvas>
         </Viewbox>
     </ControlTemplate>

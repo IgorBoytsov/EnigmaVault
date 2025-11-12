@@ -1,6 +1,7 @@
 ﻿using Common.Core.Results;
 using EnigmaVault.PasswordService.Application.Common;
 using EnigmaVault.PasswordService.Application.Common.Repositories;
+using EnigmaVault.PasswordService.Domain.ValueObjects.Common;
 using EnigmaVault.PasswordService.Domain.ValueObjects.Tag;
 using MediatR;
 using Shared.Kernel.Exceptions;
@@ -22,6 +23,7 @@ namespace EnigmaVault.PasswordService.Application.Features.Tags.Commands.Update
                 if (maybeTag.HasValue)
                 {
                     maybeTag.Value.UpdateName(TagName.Create(request.Name));
+                    maybeTag.Value.UpdateColor(Color.FromHex(request.Color));
                     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                     return Unit.Value;

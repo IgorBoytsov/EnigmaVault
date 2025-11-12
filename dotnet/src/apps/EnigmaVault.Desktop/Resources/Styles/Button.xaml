@@ -24,8 +24,8 @@
                             CornerRadius="5">
 
                         <ContentControl x:Name="contenButton" 
-                                        HorizontalAlignment="Left" 
-                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                         FontSize="{TemplateBinding FontSize}"
                                         Foreground="{TemplateBinding Foreground}"
                                         Content="{TemplateBinding Content}" 
@@ -111,18 +111,7 @@
     <!-- ╚═════════════════════════════════════════════════════════════════════════════╝ -->
 
     <Style x:Key="Button.ListView.Menagement" TargetType="Button" BasedOn="{StaticResource Button.App}">
-        <Setter Property="Padding" Value="2"/>
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="true">
-                <Setter Property="Background" Value="Transparent"/>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="true">
-                <Setter Property="Background" Value="Transparent"/>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Background" Value="Transparent"/>
-            </Trigger>
-        </Style.Triggers>
+        <Setter Property="Padding" Value="1"/>
     </Style>
 
     <Style x:Key="Button.ListView.Menu" TargetType="Button" BasedOn="{StaticResource Button.App}">

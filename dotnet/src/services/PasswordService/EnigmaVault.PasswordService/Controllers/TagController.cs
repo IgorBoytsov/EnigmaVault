@@ -19,10 +19,10 @@ namespace EnigmaVault.PasswordService.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateTagRequest request)
         {
-            var result = await _mediator.Send(new CreateTagCommand(Guid.Parse(request.UserId), request.Name));
+            var result = await _mediator.Send(new CreateTagCommand(Guid.Parse(request.UserId), request.Name, request.Color));
 
             return result.Match<IActionResult>(
-                onSuccess: () => Ok(),
+                onSuccess: () => Ok(result.Value),
                 onFailure: errors => BadRequest(result.StringMessage));
         }
 
@@ -31,7 +31,7 @@ namespace EnigmaVault.PasswordService.Controllers
         [HttpPatch]
         public async Task<IActionResult> Update([FromBody] UpdateTagRequest request)
         {
-            var result = await _mediator.Send(new UpdateTagCommand(Guid.Parse(request.Id), request.Name));
+            var result = await _mediator.Send(new UpdateTagCommand(Guid.Parse(request.Id), request.Name, request.Color));
 
             return result.Match<IActionResult>(
                 onSuccess: () => Ok(),
