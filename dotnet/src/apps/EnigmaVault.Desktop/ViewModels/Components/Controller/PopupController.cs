@@ -7,12 +7,14 @@ using System.Windows.Controls.Primitives;
 
 namespace EnigmaVault.Desktop.ViewModels.Components.Controller
 {
-    internal sealed partial class PopupController : BaseViewModel
+    public sealed partial class PopupController : BaseViewModel
     {
         private readonly Func<bool>? _condition;
 
-        public PopupController(PopupPlacementMode placementMode = PopupPlacementMode.Default, Func<bool>? condition = null)
+        public PopupController(PopupPlacementMode placementMode = PopupPlacementMode.Default, PlacementMode placement = PlacementMode.Left, Func<bool>? condition = null)
         {
+            CurrentPlacement = placement;
+
             if (placementMode == PopupPlacementMode.CustomRightUp)
                 CustomPlacementCallback = PlacePopupRightUp;
 
@@ -32,7 +34,7 @@ namespace EnigmaVault.Desktop.ViewModels.Components.Controller
         private UIElement? _placementTarget;
 
         [ObservableProperty]
-        private PlacementMode _currentPlacement = PlacementMode.Left;
+        private PlacementMode _currentPlacement;
 
         /*--Команды---------------------------------------------------------------------------------------*/
 
