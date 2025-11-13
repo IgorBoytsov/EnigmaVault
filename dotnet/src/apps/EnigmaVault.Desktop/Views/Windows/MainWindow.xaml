@@ -153,6 +153,24 @@
                                 </Viewbox>
                             </StackPanel>
                         </Button>
+                        
+                        <Button Command="{Binding OpenPageCommand}"
+                                CommandParameter="{x:Static enums:PagesName.Note}"
+                                Style="{StaticResource Button.MainWindow.SideMenu}"
+                                DockPanel.Dock="Top">
+                            <Button.ToolTip>
+                                <ToolTip Content="Заметки" 
+                                         Placement="Custom"
+                                         PlacementTarget="{Binding ElementName=BtnClose}"
+                                         CustomPopupPlacementCallback="{Binding RightToolTipController.CustomPlacementCallback}"
+                                         Style="{StaticResource ToolTip.App.Placement.Right}"/>
+                            </Button.ToolTip>
+                            <StackPanel>
+                                <Viewbox>
+                                    <Control Template="{StaticResource Notebook}" Foreground="White"/>
+                                </Viewbox>
+                            </StackPanel>
+                        </Button>
 
                         <Button Command="{Binding OpenPageCommand}"
                                 CommandParameter="{x:Static enums:PagesName.Setting}"

@@ -6,5 +6,6 @@
         Setting,
         Password,
         Secret,
+        Note,
     }
 }

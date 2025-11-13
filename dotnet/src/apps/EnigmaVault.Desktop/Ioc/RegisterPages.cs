@@ -17,6 +17,10 @@ namespace EnigmaVault.Desktop.Ioc
             services.AddTransient<SecretPageViewModel>();
             services.AddSingleton<Func<SecretPageViewModel>>(provider => () => provider.GetRequiredService<SecretPageViewModel>());
 
+            services.AddTransient<IPageFactory, NotePageFactory>();
+            services.AddTransient<NotePageViewModel>();
+            services.AddSingleton<Func<NotePageViewModel>>(provider => () => provider.GetRequiredService<NotePageViewModel>());
+
             services.AddTransient<IPageFactory, SettingsPageFactory>();
             services.AddTransient<SettingsPageViewModel>();
             services.AddSingleton<Func<SettingsPageViewModel>>(provider => () => provider.GetRequiredService<SettingsPageViewModel>());
