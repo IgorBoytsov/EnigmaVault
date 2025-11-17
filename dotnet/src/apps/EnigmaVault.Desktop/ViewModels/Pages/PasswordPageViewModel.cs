@@ -9,7 +9,6 @@ using EnigmaVault.PasswordService.ApiClient.Clients;
 using Shared.Contracts.Requests.PasswordService;
 using Shared.Contracts.Responses.PasswordService;
 using System.Collections.ObjectModel;
-using System.Text;
 using System.Windows;
 using System.Windows.Media;
 
@@ -50,7 +49,21 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         public async Task InitializeAsync()
         {
-            await GetTags();
+            if (IsInitialize)
+                return;
+
+            IsInitialize = false;
+
+            try
+            {
+                await GetTags();
+
+                IsInitialize = true;
+            }
+            catch (Exception ex) 
+            {
+                MessageBox.Show($"Произошла ошибка инициализации: {ex}");
+            }
         }
 
         public void Update<TData>(TData value, TransmittingParameter parameter)
@@ -58,45 +71,10 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         }
 
-        private static SolidColorBrush RandomBrush()
-        {
-            var random = new Random();
-
-            byte r = (byte)random.Next(0, 256);
-            byte g = (byte)random.Next(0, 256);
-            byte b = (byte)random.Next(0, 256);
-
-            return new SolidColorBrush(System.Windows.Media.Color.FromRgb(r, g, b));
-        }
-
-        private static string RandomWord()
-        {
-            var words = new List<string>() { "А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж", "З", "И", "Й", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", "Ь", "Э", "Ю", "Я" };
-            var random = new Random();
-            var sb = new StringBuilder();
-
-            for (int i = 0; i < random.Next(2, 10); i++)
-            {
-                var lowerOrUpper = random.Next(0, 2);
-                var word = words[random.Next(0, 33)];
-
-                if (lowerOrUpper == 0)
-                    word = word.ToUpper();
-                else
-                    word = word.ToLower();
-
-                sb.Append(word);
-            }
-                
-
-            return sb.ToString();
-        }
-
         /*--Коллекции-------------------------------------------------------------------------------------*/
 
         public ObservableCollection<EncryptedPassword> Passwords { get; init; } = [];
         public ObservableCollection<TagViewModel> Tags { get; init; } = [];
-        public ObservableCollection<string> Folders { get; init; } = Enumerable.Range(0, 100).Select(x => $"Папка №{x}").ToObservableCollection();
 
         /*--Свойства--------------------------------------------------------------------------------------*/
 
@@ -105,7 +83,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         public ToolTipController TopToolTipController { get; } = new(ToolTipPlacement.CenterTop);
         public ToolTipController BottomToolTipController { get; } = new(ToolTipPlacement.CenterBottom);
 
-        public PopupController PasswordMenuPopup { get; } = new();
+        public PopupController PasswordMenuPopup { get; } = new(); 
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(SetSideMenuControlCommand))]

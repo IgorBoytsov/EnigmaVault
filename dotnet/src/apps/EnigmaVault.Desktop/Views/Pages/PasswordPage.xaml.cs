@@ -1,4 +1,6 @@
-﻿using EnigmaVault.Desktop.ViewModels.Pages;
+﻿using EnigmaVault.Desktop.Enums;
+using EnigmaVault.Desktop.ViewModels.Pages;
+using EnigmaVault.Desktop.ViewModels.Windows;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -19,7 +21,10 @@ namespace EnigmaVault.Desktop.Views.Pages
             {
                 window.LocationChanged += Popup_Deactivated;
                 window.Deactivated += Popup_Deactivated;
-            }   
+
+                var vmMainWindow = window.DataContext as MainWindowViewModel;
+                vmMainWindow!.CurrentOpenPage = PagesName.Password;
+            }
         }
 
         private void PasswordPage_Unloaded(object sender, RoutedEventArgs e)
