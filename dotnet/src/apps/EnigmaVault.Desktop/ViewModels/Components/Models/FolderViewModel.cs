@@ -23,14 +23,14 @@ namespace EnigmaVault.Desktop.ViewModels.Components.Models
         private string _folderName = model.FolderName;
 
         [ObservableProperty]
-        private SolidColorBrush? _color = new(Helper.ColorConverter.HexToRgb(model.Color));
+        private SolidColorBrush? _color = new(Helpers.ColorConverter.HexToRgb(model.Color));
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(HasChanges))]
         private string _hexColor = model.Color;
 
         [ObservableProperty]
-        public Color _rgbColor = Helper.ColorConverter.HexToRgb(model.Color);
+        public Color _rgbColor = Helpers.ColorConverter.HexToRgb(model.Color);
 
         public bool HasChanges => _model.Color != HexColor;
 

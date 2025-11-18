@@ -2,7 +2,7 @@
 using EnigmaVault.Desktop.ViewModels.Base;
 using Shared.Contracts.Responses.PasswordService;
 using System.Windows.Media;
-using ColorConverter = EnigmaVault.Desktop.Helper.ColorConverter;
+using ColorConverter = EnigmaVault.Desktop.Helpers.ColorConverter;
 
 namespace EnigmaVault.Desktop.ViewModels.Components.Models
 {

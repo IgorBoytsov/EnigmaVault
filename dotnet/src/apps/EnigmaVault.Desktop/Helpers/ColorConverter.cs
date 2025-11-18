@@ -2,7 +2,7 @@
 using System.Windows.Media;
 using System.Globalization;
 
-namespace EnigmaVault.Desktop.Helper
+namespace EnigmaVault.Desktop.Helpers
 {
     public static class ColorConverter
     {
