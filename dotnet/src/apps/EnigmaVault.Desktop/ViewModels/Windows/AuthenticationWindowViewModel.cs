@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using EnigmaVault.Authentication.ApiClient.HttpClients;
 using EnigmaVault.Desktop.Enums;
+using EnigmaVault.Desktop.Services;
 using EnigmaVault.Desktop.Services.Managers;
 using EnigmaVault.Desktop.Services.PageNavigation;
 using EnigmaVault.Desktop.ViewModels.Base;
@@ -15,6 +16,7 @@ namespace EnigmaVault.Desktop.ViewModels.Windows
         private readonly IWindowNavigation _windowNavigation;
         private readonly IPageNavigation _pageNavigation;
         private readonly IUserManagementService _userManagementService;
+        private readonly IUserContext _userContext;
         private readonly IAuthService _authService;
         private readonly ITokenManager _tokenManager;
 
@@ -22,16 +24,18 @@ namespace EnigmaVault.Desktop.ViewModels.Windows
         IWindowNavigation windowNavigation,
         IPageNavigation pageNavigation,
         IUserManagementService userManagementService,
+        IUserContext userContext,
         IAuthService authService,
         ITokenManager tokenManager) : base(windowNavigation, pageNavigation)
         {
             _windowNavigation = windowNavigation;
             _pageNavigation = pageNavigation;
             _userManagementService = userManagementService;
+            _userContext = userContext;
             _authService = authService;
             _tokenManager = tokenManager;
 
-            Login = new(_windowNavigation, _authService, _tokenManager);
+            Login = new(_windowNavigation, _pageNavigation, _authService, _userManagementService, _userContext, _tokenManager);
             Registration = new(_userManagementService);
             RecoveryAccess = new(_userManagementService);
 

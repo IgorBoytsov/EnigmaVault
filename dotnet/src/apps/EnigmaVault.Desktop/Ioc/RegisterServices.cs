@@ -1,4 +1,5 @@
-﻿using EnigmaVault.Desktop.Services.Initializers;
+﻿using EnigmaVault.Desktop.Services;
+using EnigmaVault.Desktop.Services.Initializers;
 using EnigmaVault.Desktop.Services.Managers;
 using EnigmaVault.Desktop.Services.PageNavigation;
 using EnigmaVault.Desktop.Services.WindowNavigation;
@@ -15,6 +16,7 @@ namespace EnigmaVault.Desktop.Ioc
             services.AddSingleton<IPageNavigation, PageNavigation>();
             services.AddSingleton<ITokenManager, TokenManager>();
             services.AddSingleton<IApplicationInitializer, ApplicationInitializer>();
+            services.AddSingleton<IUserContext, UserContext>();
 
             return services;
         }
