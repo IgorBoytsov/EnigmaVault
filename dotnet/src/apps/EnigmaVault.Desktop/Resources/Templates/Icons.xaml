@@ -34,7 +34,7 @@
             </Canvas>
         </Viewbox>
     </ControlTemplate>
-
+    
     <ControlTemplate x:Key="Folder" TargetType="Control">
         <Viewbox Stretch="Uniform">
             <Canvas Width="512" Height="347.28">
@@ -86,6 +86,61 @@
                       l 73.77,-168.06
                       c 0.07,0.03 4.09,-7.78 -4.04,-7.78
                       z" />
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Image" TargetType="Control">
+        <Viewbox Stretch="Uniform">
+            <Canvas Width="24" Height="24">
+                <Path Stroke="{TemplateBinding Foreground}" 
+                      StrokeThickness="2" 
+                      StrokeStartLineCap="Round" 
+                      StrokeLineJoin="Round">
+                    <Path.Data>
+                        <GeometryGroup>
+                            <RectangleGeometry Rect="3,3,18,18" RadiusX="2" RadiusY="2"/>
+                            <EllipseGeometry Center="9,9" RadiusX="2" RadiusY="2"/>
+                            <PathGeometry Figures="M 21,15 L 17.914,11.914 A 2,2 0 0 0 15.086,11.914 L 6,21"/>
+                        </GeometryGroup>
+                    </Path.Data>
+                </Path>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="ImagePlus" TargetType="Control">
+        <Viewbox Stretch="Uniform">
+            <Canvas Width="24" Height="24">
+                <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
+                      StrokeThickness="2"
+                      StrokeStartLineCap="Round"
+                      StrokeEndLineCap="Round"
+                      StrokeLineJoin="Round"
+                      Data="
+                      M 16 5 h 6
+                      M 19 2 v 6
+                      M 21 11.5 V 19 a 2 2 0 0 1 -2 2 H 5 a 2 2 0 0 1 -2 -2 V 5 a 2 2 0 0 1 2 -2 h 7.5
+                      M 21 15 l -3.086 -3.086 a 2 2 0 0 0 -2.828 0 L 6 21
+                      M 9 7 a 2 2 0 1 1 0 4 a 2 2 0 1 1 0 -4"/>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="ListFilterPlus" TargetType="Control">
+        <Viewbox Stretch="Uniform">
+            <Canvas Width="24" Height="24">
+                <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
+                      StrokeThickness="2"
+                      StrokeStartLineCap="Round"
+                      StrokeEndLineCap="Round"
+                      StrokeLineJoin="Round"
+                      Data="
+                      M 12 5 H 2
+                      M 6 12 h 12
+                      M 9 19 h 6
+                      M 16 5 h 6
+                      M 19 8 V 2"/>
             </Canvas>
         </Viewbox>
     </ControlTemplate>
