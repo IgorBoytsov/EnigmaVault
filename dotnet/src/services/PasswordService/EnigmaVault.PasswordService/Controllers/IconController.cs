@@ -36,7 +36,7 @@ namespace EnigmaVault.PasswordService.Controllers
             var result = await _mediator.Send(new CreatePersonalIconCommand(Guid.Parse(request.UserId), request.SvgCode,request.Name, Guid.Parse(request.IconCategoryId)));
 
             return result.Match<IActionResult>(
-                onSuccess: () => Ok(),
+                onSuccess: () => Ok(result.Value),
                 onFailure: errors => BadRequest(result.StringMessage));
         }
 

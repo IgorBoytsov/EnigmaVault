@@ -36,7 +36,7 @@ namespace EnigmaVault.PasswordService.Controllers
             var result = await _mediator.Send(new CreatePersonalCategoryCommand(request.Name, request.UserId));
 
             return result.Match<IActionResult>(
-                onSuccess: () => Ok(),
+                onSuccess: () => Ok(result.Value),
                 onFailure: errors => BadRequest(result.StringMessage));
         }
 

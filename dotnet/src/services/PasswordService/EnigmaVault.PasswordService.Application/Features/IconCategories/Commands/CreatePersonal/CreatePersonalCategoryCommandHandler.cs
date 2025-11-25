@@ -4,18 +4,17 @@ using EnigmaVault.PasswordService.Application.Common.Repositories;
 using EnigmaVault.PasswordService.Domain.Models;
 using MediatR;
 using Shared.Kernel.Exceptions;
-using Unit = Common.Core.Results.Unit;
 
 namespace EnigmaVault.PasswordService.Application.Features.IconCategories.Commands.CreatePersonal
 {
     internal sealed class CreatePersonalCategoryCommandHandler(
         IUnitOfWork unitOfWork,
-        IIconCategoryRepository repository) : IRequestHandler<CreatePersonalCategoryCommand, Result<Unit>>
+        IIconCategoryRepository repository) : IRequestHandler<CreatePersonalCategoryCommand, Result<string>>
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIconCategoryRepository _repository = repository;
 
-        public async Task<Result<Unit>> Handle(CreatePersonalCategoryCommand request, CancellationToken cancellationToken)
+        public async Task<Result<string>> Handle(CreatePersonalCategoryCommand request, CancellationToken cancellationToken)
         {
             try
             {
@@ -24,7 +23,7 @@ namespace EnigmaVault.PasswordService.Application.Features.IconCategories.Comman
                 await _repository.AddAsync(category, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                return Unit.Value;
+                return category.Id.ToString();
             }
             catch (DomainException ex)
             {
