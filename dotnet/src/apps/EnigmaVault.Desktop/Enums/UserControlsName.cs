@@ -10,5 +10,6 @@
 
         Folders,
         Tags,
+        Icons,
     }
 }

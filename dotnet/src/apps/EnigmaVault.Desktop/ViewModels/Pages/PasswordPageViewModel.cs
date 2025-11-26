@@ -2,14 +2,21 @@
 using CommunityToolkit.Mvvm.Input;
 using EnigmaVault.Desktop.Enums;
 using EnigmaVault.Desktop.Helpers;
+using EnigmaVault.Desktop.Services;
 using EnigmaVault.Desktop.ViewModels.Base;
 using EnigmaVault.Desktop.ViewModels.Components.Controller;
 using EnigmaVault.Desktop.ViewModels.Components.Models;
 using EnigmaVault.PasswordService.ApiClient.Clients;
 using Shared.Contracts.Requests.PasswordService;
 using Shared.Contracts.Responses.PasswordService;
+using SharpVectors.Converters;
+using SharpVectors.Renderers.Wpf;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
+using System.Text;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Media;
 
 namespace EnigmaVault.Desktop.ViewModels.Pages
@@ -27,12 +34,24 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
     internal sealed partial class PasswordPageViewModel : BasePageViewModel, IAsyncInitializable, IUpdatable
     {
         private readonly ITagService _tagService;
+        private readonly IIconCategoryService _iconCategoryService;
+        private readonly IIconService _iconService;
+        private readonly IUserContext _userContext;
 
         /*--Инициализация---------------------------------------------------------------------------------*/
 
-        public PasswordPageViewModel(ITagService tagService)
+        public PasswordPageViewModel(
+            ITagService tagService,
+            IIconCategoryService iconCategoryService,
+            IIconService iconService,
+            IUserContext userContext)
         {
             _tagService = tagService;
+            _iconCategoryService = iconCategoryService;
+            _iconService = iconService;
+            _userContext = userContext;
+
+            CurrentDisplayUserControl = UserControlsName.Tags;
 
             var random = new Random();
 
@@ -45,6 +64,12 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
                 ServiceName = $"Сервис номер {random.Next(0, 100)}",
                 Url = "https://www.youtube.com/@ZUBAREV_CUTTING"
             }).ToObservableCollection();
+
+            IconView = CollectionViewSource.GetDefaultView(Icons);
+            IconCategoryView = CollectionViewSource.GetDefaultView(IconCategories);
+
+            UpdateIconsView();
+            UpdateIconCategoriesView();
         }
 
         public async Task InitializeAsync()
@@ -57,6 +82,8 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
             try
             {
                 await GetTags();
+                await GetIconCategories();
+                await GetIcons();
 
                 IsInitialize = true;
             }
@@ -76,6 +103,12 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         public ObservableCollection<EncryptedPassword> Passwords { get; init; } = [];
         public ObservableCollection<TagViewModel> Tags { get; init; } = [];
 
+        public ObservableCollection<IconViewModel> Icons { get; init; } = [];
+        public ICollectionView IconView { get; private set; } = null!;
+
+        public ObservableCollection<IconCategoryViewModel> IconCategories { get; init; } = [];
+        public ICollectionView IconCategoryView { get; private init; } = null!;
+
         /*--Свойства--------------------------------------------------------------------------------------*/
 
         public ToolTipController RightToolTipController { get; } = new(ToolTipPlacement.CenterRight);
@@ -84,6 +117,8 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         public ToolTipController BottomToolTipController { get; } = new(ToolTipPlacement.CenterBottom);
 
         public PopupController PasswordMenuPopup { get; } = new(); 
+        public PopupController AddIconPopup { get; } = new(); 
+        public PopupController AddIconCategoryPopup { get; } = new(); 
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(SetSideMenuControlCommand))]
@@ -152,6 +187,76 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         #endregion
 
+        #region SVG
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(SaveIconCommand))]
+        private string? _svgCode;
+
+        partial void OnSvgCodeChanged(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                SvgConvertError = string.Empty;
+                Svg = null;
+                return;
+            }
+
+            try
+            {
+                Svg = ConvertSvgInString(value);
+            }
+            catch (Exception ex)
+            {
+                SvgConvertError = ex.Message;
+            }
+
+        }
+
+        [ObservableProperty]
+        private DrawingImage? _svg;
+
+        [ObservableProperty]
+        private string? _svgConvertError;
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(SaveIconCommand))]
+        private IconCategoryViewModel? _selectedIconCategory;
+
+        #endregion
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(SaveIconCategoryCommand))]
+        private string? _iconCategoryName;
+
+        #region Свойство: [SelectedEditableCategory], Методы: [OnSelectedEditableCategoryChanging, OnSelectedEditableCategoryChanged, OnCategoryPropertyChanged]
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(UpdateIconCategortyCommand))]
+        private IconCategoryViewModel? _selectedEditableCategory;
+
+        partial void OnSelectedEditableCategoryChanging(IconCategoryViewModel? value)
+        {
+            if (SelectedEditableCategory is not null)
+                SelectedEditableCategory.PropertyChanged -= OnCategoryPropertyChanged;
+        }
+
+        partial void OnSelectedEditableCategoryChanged(IconCategoryViewModel? value)
+        {
+            if (value is not null)
+                value.PropertyChanged += OnCategoryPropertyChanged;
+
+            UpdateIconCategortyCommand.NotifyCanExecuteChanged();
+        }
+
+        private void OnCategoryPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(IconCategoryViewModel.HasChanges))
+                UpdateIconCategortyCommand.NotifyCanExecuteChanged();
+        }
+
+        #endregion
+
         /*--Команды---------------------------------------------------------------------------------------*/
 
         #region Команда [CreateTagCommand]: Создает тэг
@@ -159,7 +264,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         [RelayCommand(CanExecute = nameof(CanCreateTag))]
         private async Task CreateTag()
         {
-            var result = await _tagService.CreateAsync(new CreateTagRequest("b8f34e7a-b3c8-42e8-8cc2-8329fc8e4949", NameTag!, Helper.ColorConverter.RgbToHex(int.Parse(Red), int.Parse(Green), int.Parse(Blue))));
+            var result = await _tagService.CreateAsync(new CreateTagRequest(_userContext.Id, NameTag!, Helpers.ColorConverter.RgbToHex(int.Parse(Red), int.Parse(Green), int.Parse(Blue))));
 
             if (result.IsFailure)
             {
@@ -167,7 +272,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
                 return;
             }
 
-            Tags.Add(new TagViewModel(new TagResponse(result.Value, "b8f34e7a-b3c8-42e8-8cc2-8329fc8e4949", NameTag!, Helper.ColorConverter.RgbToHex(int.Parse(Red), int.Parse(Green), int.Parse(Blue)))));
+            Tags.Add(new TagViewModel(new TagResponse(result.Value, _userContext.Id, NameTag!, Helpers.ColorConverter.RgbToHex(int.Parse(Red), int.Parse(Green), int.Parse(Blue)))));
 
             NameTag = string.Empty;
         }
@@ -208,7 +313,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
                 return;
             }
 
-            SelectedTag.CommitChanges(new TagResponse(SelectedTag.Id, "b8f34e7a-b3c8-42e8-8cc2-8329fc8e4949", SelectedTag.TagName!, SelectedTag.HexColor));
+            SelectedTag.CommitChanges(new TagResponse(SelectedTag.Id, _userContext.Id, SelectedTag.TagName!, SelectedTag.HexColor));
         }
 
         #endregion
@@ -236,16 +341,255 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         #endregion
 
+        #region Команда [SaveIconCommand]: Отвечает за сохранение Svg иконки
+
+        [RelayCommand(CanExecute = nameof(CanSaveIcon))]
+        private async Task SaveIcon()
+        {
+            var result = await _iconService.CreatePersonalAsync(new CreateIconPersonalRequest(_userContext.Id, SvgCode!, "Тестовое название", SelectedIconCategory!.Id));
+
+            if (result.IsFailure)
+            {
+                MessageBox.Show(result.StringMessage);
+                return;
+            }
+
+            Icons.Add(new IconViewModel(new IconResponse(result.Value, _userContext.Id, SvgCode!, "", SelectedIconCategory.Id)));
+
+            Svg = null;
+            SvgCode = string.Empty;
+            SelectedIconCategory = null;
+        }
+
+        private bool CanSaveIcon() => !string.IsNullOrWhiteSpace(SvgCode) && SelectedIconCategory != null;
+
+        #endregion
+
+        #region Команда [SaveIconCategoryCommand]: Отвечает за сохранение категории иконки
+
+        [RelayCommand(CanExecute = nameof(CanSaveIconCategory))]
+        private async Task SaveIconCategory()
+        {
+            var result = await _iconCategoryService.CreatePersonalAsync(new CreateIconCategoryPersonalRequest(IconCategoryName!, Guid.Parse(_userContext.Id)));
+
+            if (result.IsFailure)
+            {
+                MessageBox.Show(result.StringMessage);
+                return;
+            }
+
+            IconCategories.Add(new IconCategoryViewModel(new IconCategoryResponse(result.Value, _userContext.Id, IconCategoryName!)));
+
+            IconCategoryName = string.Empty;
+
+            UpdateIconCategoriesView();
+        }
+
+        private bool CanSaveIconCategory() => !string.IsNullOrWhiteSpace(IconCategoryName);
+
+        #endregion
+
+        #region Команда [UpdateIconCategoryCommand]: Отвечает за обновление категории
+
+        [RelayCommand(CanExecute = nameof(CanUpdateIconCategorty))]
+        private async Task UpdateIconCategorty(IconCategoryViewModel value)
+        {
+            var result = await _iconCategoryService.UpdatePersonalAsync(new UpdatePersonalIconCategoryRequest(Guid.Parse(value.Id), Guid.Parse(_userContext.Id), value.Name));
+
+            if (result.IsFailure)
+            {
+                MessageBox.Show(result.StringMessage);
+                return;
+            }
+
+            value.Comit();
+            UpdateIconCategortyCommand.NotifyCanExecuteChanged();
+
+            foreach (var icon in Icons)
+            {
+                if (icon.IconCategoryId == value.Id)
+                    icon.SetCategory(value);
+            }
+
+            UpdateIconsView();
+        }
+
+        private bool CanUpdateIconCategorty()
+        {
+            if (SelectedEditableCategory is null)
+                return false;
+
+            return SelectedEditableCategory.HasChanges;
+        }
+
+        #endregion
+
+        #region Команда [DeleteIconCategoryCommand] : Отвечает за удаление категории
+
+        [RelayCommand]
+        private async Task DeleteIconCategory(IconCategoryViewModel value)
+        {
+            var result = await _iconCategoryService.DeletePersonalAsync(_userContext.Id, value.Id);
+
+            if (result.IsFailure)
+            {
+                MessageBox.Show(result.StringMessage);
+                return;
+            }
+
+            var valueToRemove = IconCategories.FirstOrDefault(ic => ic.Id == value.Id);
+
+            if (valueToRemove is null)
+            {
+                MessageBox.Show("Элемент уже удален. Если категория не исчезла - то перезапустите приложение.");
+                return;
+            }
+
+            IconCategories.Remove(valueToRemove);
+        }
+        
+
+        #endregion
+
         /*--Методы----------------------------------------------------------------------------------------*/
+
+        #region Получение данных
 
         public async Task GetTags()
         {
-            var result = await _tagService.GetAll("b8f34e7a-b3c8-42e8-8cc2-8329fc8e4949"); 
+            var result = await _tagService.GetAll(_userContext.Id); 
 
             foreach (var item in result.Value)
             {
                 Tags.Add(new TagViewModel(item));
             }
         }
+
+        public async Task GetIcons()
+        {
+            var result = await _iconService.GetAll(_userContext.Id);
+
+            if (result.IsFailure)
+            {
+                MessageBox.Show(result.StringMessage);
+                return;
+            }
+
+            foreach (var item in result.Value)
+            {
+                var iconVm = new IconViewModel(item);
+                iconVm.SetIcon(ConvertSvgInString(iconVm.SvgCode!));
+                var ict = IconCategories.FirstOrDefault(ic => ic.Id == item.IconCategoryId);
+                iconVm.SetCategory(ict);
+                Icons.Add(iconVm);
+            }
+
+            UpdateIconsView();
+        }
+
+        public async Task GetIconCategories()
+        {
+            var result = await _iconCategoryService.GetAllAsync(_userContext.Id);
+
+            foreach (var item in result.Value)
+            {
+                var iconCategoryVM = new IconCategoryViewModel(item);
+                IconCategories.Add(iconCategoryVM);
+            }    
+        }
+
+        #endregion
+
+        #region Преобразование Svg
+
+        //private DrawingImage? ConvertSVG(string? svgCode)
+        //{
+        //    ArgumentNullException.ThrowIfNull(_defaultIcon, nameof(_defaultIcon));
+
+        //    if (string.IsNullOrWhiteSpace(svgCode))
+        //        return _defaultIcon;
+
+        //    if (_iconCache.TryGetValue(svgCode, out var cachedIcon))
+        //        return cachedIcon;
+
+        //    var svgString = ReplaceDoubleQuotesWithSingle(svgCode)!;
+        //    var newIcon = ConvertSvgInString(svgString);
+
+        //    if (newIcon is null)
+        //        return _defaultIcon!;
+
+        //    _iconCache[svgCode] = newIcon;
+        //    return newIcon;
+        //}
+
+        private DrawingImage? ConvertSvgInString(string svgCode)
+        {
+            if (string.IsNullOrWhiteSpace(svgCode)) return null;
+
+            var settings = new WpfDrawingSettings
+            {
+                IncludeRuntime = true,
+                TextAsGeometry = true
+            };
+
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(svgCode));
+            FileSvgReader? reader = null;
+
+            try
+            {
+                reader = new FileSvgReader(settings);
+                DrawingGroup drawingGroup = reader!.Read(stream);
+
+                if (drawingGroup != null)
+                {
+                    var drawingImage = new DrawingImage(drawingGroup);
+                    drawingImage.Freeze();
+                    return drawingImage;
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                SvgConvertError = ex.Message;
+            }
+
+            return null;
+        }
+
+        //private void SetDefaultIcon()
+        //{
+        //    if (_defaultIcon is not null) return;
+
+        //    var defaultIconImage = ConvertSvgInString(DefaultIconConstants.DEFOULT_SECRET_SVG) ?? throw new InvalidOperationException("Не удалось создать дефолтную иконку.");
+
+        //    _defaultIcon = defaultIconImage;
+
+        //    // _iconCache[DefaultIconConstants.DEFOULT_SECRET_SVG] = _defaultIcon;
+        //}
+
+        private static string? ReplaceDoubleQuotesWithSingle(string inputString) => inputString?.Replace("\"", "'");
+
+        #endregion
+
+        #region ICollectionView 
+
+        private void UpdateIconsView()
+        {
+            IconView.SortDescriptions.Clear();
+            IconView.GroupDescriptions.Clear();
+
+            IconView.SortDescriptions.Add(new SortDescription(nameof(IconViewModel.IconCategoryName), ListSortDirection.Ascending));
+            IconView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(IconViewModel.IconCategoryName)));
+        }
+
+        private void UpdateIconCategoriesView()
+        {
+            IconCategoryView.SortDescriptions.Clear();
+
+            IconCategoryView.SortDescriptions.Add(new SortDescription(nameof(IconCategoryViewModel.Name), ListSortDirection.Ascending));
+        }
+
+        #endregion
     }
 }
