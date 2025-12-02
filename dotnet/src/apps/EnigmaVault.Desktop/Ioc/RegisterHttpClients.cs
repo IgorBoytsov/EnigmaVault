@@ -23,6 +23,8 @@ namespace EnigmaVault.Desktop.Ioc
             const string passwordServiceApiClientName = "PasswordApiClient";
             services.AddHttpClient(passwordServiceApiClientName, client => client.BaseAddress = new Uri(passwordServiceApiUrl!));
             services.AddHttpClient<ITagService, TagService>(passwordServiceApiClientName);
+            services.AddHttpClient<IIconCategoryService, IconCategoryService>(passwordServiceApiClientName);
+            services.AddHttpClient<IIconService, IconService>(passwordServiceApiClientName);
 
             return services;
         }
