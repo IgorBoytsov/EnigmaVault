@@ -1,5 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+                    xmlns:cc="clr-namespace:EnigmaVault.Desktop.Views.Controls">
 
     <!-- ╔═════════════════════════════════════════════════════════════════════════════╗ -->
     <!-- ║                           AuthenticationControls                            ║ -->
@@ -54,6 +55,52 @@
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="CaretBrush" Value="White"/>
         <Setter Property="Template" Value="{StaticResource BaseTemplate}"/>
+    </Style>
+
+    <!-- ╔═════════════════════════════════════════════════════════════════════════════╗ -->
+    <!-- ║                            PlaceHolderTextBox                               ║ -->
+    <!-- ╚═════════════════════════════════════════════════════════════════════════════╝ -->
+
+    <Style TargetType="{x:Type cc:PlaceHolderTextBox}" BasedOn="{StaticResource TextBox.InputData}">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type cc:PlaceHolderTextBox}">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="3"
+                            BorderThickness="1">
+                        <Grid>
+
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                          Focusable="false" 
+                                          HorizontalScrollBarVisibility="Hidden" 
+                                          VerticalScrollBarVisibility="Hidden"/>
+
+                            <TextBlock x:Name="Placeholder"
+                                       Text="{TemplateBinding PlaceHolder}"
+                                       FontSize="{TemplateBinding FontSize}"
+                                       Foreground="#8C95A4"
+                                       Margin="7,0,0,0"
+                                       VerticalAlignment="Center"
+                                       IsHitTestVisible="False"
+                                       Visibility="Collapsed"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Text" Value="">
+                            <Setter TargetName="Placeholder" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsFocused" Value="True">
+                            <Setter TargetName="border" Property="BorderBrush" Value="#474747"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="BorderBrush" Value="#474747"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
 </ResourceDictionary>
