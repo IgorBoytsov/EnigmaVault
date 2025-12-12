@@ -2,6 +2,7 @@
 using EnigmaVault.Desktop.Services.Initializers;
 using EnigmaVault.Desktop.Services.Managers;
 using EnigmaVault.Desktop.Services.PageNavigation;
+using EnigmaVault.Desktop.Services.Secure;
 using EnigmaVault.Desktop.Services.WindowNavigation;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.WPF.Navigations.Windows;
@@ -17,6 +18,7 @@ namespace EnigmaVault.Desktop.Ioc
             services.AddSingleton<ITokenManager, TokenManager>();
             services.AddSingleton<IApplicationInitializer, ApplicationInitializer>();
             services.AddSingleton<IUserContext, UserContext>();
+            services.AddSingleton<ISecureDataService, SecureDataService>();
 
             return services;
         }
