@@ -16,6 +16,7 @@ namespace EnigmaVault.Desktop.Ioc
             services.AddSingleton<IWindowNavigation, WindowNavigation>();
             services.AddSingleton<IPageNavigation, PageNavigation>();
             services.AddSingleton<ITokenManager, TokenManager>();
+            services.AddSingleton<IKeyManager, KeyManager>();
             services.AddSingleton<IApplicationInitializer, ApplicationInitializer>();
             services.AddSingleton<IUserContext, UserContext>();
             services.AddSingleton<ISecureDataService, SecureDataService>();
