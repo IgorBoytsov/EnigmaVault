@@ -1,16 +1,18 @@
-﻿using EnigmaVault.Authentication.ApiClient.HttpClients;
+﻿using Common.Core.Primitives;
+using EnigmaVault.Authentication.ApiClient.HttpClients;
 using EnigmaVault.Desktop.Enums;
 using EnigmaVault.Desktop.Models;
 using EnigmaVault.Desktop.Services.Managers;
 using EnigmaVault.Desktop.Services.PageNavigation;
+using EnigmaVault.Desktop.Services.Secure;
 using Shared.Contracts.Requests;
 using Shared.WPF.Navigations.Windows;
-using System.Windows;
 
 namespace EnigmaVault.Desktop.Services.Initializers
 {
     internal class ApplicationInitializer(
         ITokenManager tokenManager,
+        IKeyManager keyManager,
         IAuthService authService,
         IUserManagementService userManagementService,
         IUserContext userContext,
@@ -18,6 +20,7 @@ namespace EnigmaVault.Desktop.Services.Initializers
         IPageNavigation pageNavigation) : IApplicationInitializer
     {
         private readonly ITokenManager _tokenManager = tokenManager;
+        private readonly IKeyManager _keyManager = keyManager;
         private readonly IAuthService _authService = authService;
         private readonly IUserManagementService _userManagementService = userManagementService;
         private readonly IUserContext _userContext = userContext;
@@ -36,6 +39,12 @@ namespace EnigmaVault.Desktop.Services.Initializers
                     authResult.Switch(
                         onSuccess: async () =>
                         {
+                            Maybe<byte[]> dek = _keyManager.GetKey();
+
+                            dek.Match(
+                                onSome : key => _userContext.UpdateDek(key),
+                                onNone: () => _windowNavigation!.Open(WindowsName.AuthenticationWindow));
+
                             _tokenManager.SaveTokens(new AccessData(authResult.Value!.AccessToken, authResult.Value!.RefreshToken));
                             var userInfo = await _userManagementService.Me(authResult.Value.AccessToken);
 
