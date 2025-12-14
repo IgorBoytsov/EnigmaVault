@@ -11,5 +11,6 @@ namespace EnigmaVault.Desktop.Services
 
         void UpdateTokens(AccessData accessData);
         void UpdateUserInfo(UserInfo info);
+        void UpdateDek(byte[] dek);
     }
 }

@@ -9,6 +9,7 @@ namespace EnigmaVault.Desktop.Services
 
         public string AccessToken { get; private set; } = null!;
         public string RefreshToken { get; private set; } = null!;
+        public byte[] Dek { get; private set; } = null!;
 
         public void UpdateTokens(AccessData accessData)
         {
@@ -20,6 +21,11 @@ namespace EnigmaVault.Desktop.Services
         {
             Id = info.Id;
             Login = info.Login;
+        }
+
+        public void UpdateDek(byte[] dek)
+        {
+            Dek = dek;
         }
     }
 }
