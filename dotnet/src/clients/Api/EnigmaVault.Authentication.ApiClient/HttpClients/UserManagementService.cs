@@ -1,4 +1,5 @@
 ﻿using Common.Core.Results;
+using EnigmaVault.Authentication.ApiClient.Model.Responses;
 using LanguageExt.Pipes;
 using Shared.Contracts.Requests;
 using Shared.Contracts.Responses;
@@ -29,11 +30,11 @@ namespace EnigmaVault.Authentication.ApiClient.HttpClients
             }
             catch (HttpRequestException ex)
             {
-                return Error.New(ErrorCode.ApiError, ex.Message);
+                return Error.New(ErrorCode.ApiError, ex.ToString());
             }
             catch (Exception ex)
             {
-                return Error.New(ErrorCode.ApiError, $"Произошла критическая ошибки при отправки запроса: {ex.Message}");
+                return Error.New(ErrorCode.ApiError, $"Произошла критическая ошибки при отправки запроса: {ex}");
             }
         }
 
@@ -78,6 +79,30 @@ namespace EnigmaVault.Authentication.ApiClient.HttpClients
             catch (JsonException jsonEx)
             {
                 return Result<UserResponse?>.Failure(new Error(ErrorCode.Create, $"Ошибка десериализации ответа от api/users/login: {jsonEx.Message}"));
+            }
+        }
+
+        public async Task<Result<UserPublicInfo>> GetPublicEncryptionInfo(string login)
+        {
+            try
+            {
+                var responseMessage = await _httpClient.GetAsync($"api/users/public-encryption-info/{login}");
+                responseMessage.EnsureSuccessStatusCode();
+
+                var userPublicInfo = await responseMessage.Content.ReadFromJsonAsync<UserPublicInfo>(_jsonSerializerOptions);
+
+                if (userPublicInfo == null)
+                    return Result<UserPublicInfo>.Failure(new Error(ErrorCode.NotFound, "Пользователь не найден."));
+
+                return Result<UserPublicInfo>.Success(userPublicInfo);
+            }
+            catch (HttpRequestException ex)
+            {
+                return Result<UserPublicInfo>.Failure(new Error(ErrorCode.Create, $"Ошибка: {ex}"));
+            }
+            catch (JsonException jsonEx)
+            {
+                return Result<UserPublicInfo>.Failure(new Error(ErrorCode.Create, $"Ошибка десериализации ответа от api/users/public-encryption-info: {jsonEx.Message}"));
             }
         }
     }

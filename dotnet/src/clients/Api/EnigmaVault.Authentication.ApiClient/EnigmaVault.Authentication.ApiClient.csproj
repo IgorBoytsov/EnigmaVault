@@ -11,4 +11,8 @@
     <ProjectReference Include="..\..\..\common\Shared.Contracts\Shared.Contracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Model\Requests\" />
+  </ItemGroup>
+
 </Project>
