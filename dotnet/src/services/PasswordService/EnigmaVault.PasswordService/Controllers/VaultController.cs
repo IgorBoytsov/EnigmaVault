@@ -1,4 +1,5 @@
 ﻿using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.Create;
+using EnigmaVault.PasswordService.Application.Features.VaultItems.Queries.GetAll;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Contracts.Requests.PasswordService;
@@ -26,6 +27,16 @@ namespace EnigmaVault.PasswordService.Controllers
 
             if (result.IsFailure)
                 return BadRequest(result.StringMessage);
+
+            return Ok(result.Value);
+        }
+
+        /*--Get-------------------------------------------------------------------------------------------*/
+
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetAll([FromRoute] Guid userId)
+        {
+            var result = await _mediator.Send(new GetAllVaultsQuery(userId));
 
             return Ok(result.Value);
         }

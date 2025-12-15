@@ -30,5 +30,20 @@ namespace EnigmaVault.PasswordService.ApiClient.Clients
                 return Error.New(ErrorCode.ApiError, ex.ToString());
             }
         }
+
+        public async Task<Result<List<EncryptedVaultResponse>>> GetAllAsync(string userId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_url}/{userId}");
+                response.EnsureSuccessStatusCode();
+
+                return await response.Content.ReadFromJsonAsync<List<EncryptedVaultResponse>>(_jsonSerializerOptions) ?? [];
+            }
+            catch (Exception ex)
+            {
+                return Error.New(ErrorCode.ApiError, ex.Message);
+            }
+        }
     }
 }

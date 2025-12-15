@@ -7,5 +7,6 @@ namespace EnigmaVault.PasswordService.ApiClient.Clients
     public interface IVaultService
     {
         Task<Result<string>> CreateAsync(CreateVaultItemRequest request);
+        Task<Result<List<EncryptedVaultResponse>>> GetAllAsync(string userId);
     }
 }
