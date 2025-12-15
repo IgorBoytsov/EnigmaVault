@@ -25,6 +25,7 @@ namespace EnigmaVault.Desktop.Ioc
             services.AddHttpClient<ITagService, TagService>(passwordServiceApiClientName);
             services.AddHttpClient<IIconCategoryService, IconCategoryService>(passwordServiceApiClientName);
             services.AddHttpClient<IIconService, IconService>(passwordServiceApiClientName);
+            services.AddHttpClient<IVaultService, VaultService>(passwordServiceApiClientName);
 
             return services;
         }
