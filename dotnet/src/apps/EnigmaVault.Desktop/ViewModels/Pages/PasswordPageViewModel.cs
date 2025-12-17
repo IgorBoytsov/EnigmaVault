@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using EnigmaVault.Desktop.Enums;
 using EnigmaVault.Desktop.Helpers;
 using EnigmaVault.Desktop.Services;
+using EnigmaVault.Desktop.Services.PageNavigation;
 using EnigmaVault.Desktop.ViewModels.Base;
 using EnigmaVault.Desktop.ViewModels.Components.Controller;
 using EnigmaVault.Desktop.ViewModels.Components.Models;
@@ -21,7 +22,7 @@ using System.Windows.Media;
 
 namespace EnigmaVault.Desktop.ViewModels.Pages
 {
-    internal sealed partial class EncryptedPassword : BaseViewModel
+    internal sealed partial class PasswordPageViewModel : BasePageViewModel, IAsyncInitializable, IUpdatable, ISidebarController
     {
         public string FolderName { get; set; } = null!;
         public DateTime DateAdded { get; set; }
@@ -591,5 +592,26 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         }
 
         #endregion
+
+        #region Управление правым боковым меню
+
+        [ObservableProperty]
+        private double _rightSidebarWidth = 250;
+
+        [ObservableProperty]
+        private bool _isSidebarOpen;
+
+        public void ToggleSidebar()
+        {
+            IsSidebarOpen = !IsSidebarOpen;
+
+            if (IsSidebarOpen)
+                RightSidebarWidth = 250;
+            else
+                RightSidebarWidth = 0;
+        }
+
+        #endregion
+
     }
 }
