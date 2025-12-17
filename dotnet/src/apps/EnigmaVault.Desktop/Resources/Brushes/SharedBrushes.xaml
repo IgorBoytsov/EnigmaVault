@@ -6,15 +6,18 @@
     <SolidColorBrush x:Key="App.SurfaceBrush" Color="#1F2326"/>
 
     <!--====================Border====================-->
-    <LinearGradientBrush x:Key="Border.TextBox.BorderBrush" StartPoint="0.5,0" EndPoint="0.5,1">
+    <!--<LinearGradientBrush x:Key="Border.TextBox.BorderBrush" StartPoint="0.5,0" EndPoint="0.5,1">
         <GradientStop Color="#7c7979" Offset="0.5"/>
         <GradientStop Color="#474747" Offset="1"/>
-    </LinearGradientBrush>
+    </LinearGradientBrush>-->
 
-    <!--====================Button====================-->
+    <SolidColorBrush x:Key="Border.TextBox.BorderBrush" Color="#50A7E7"/>
+
+        <!--====================Button====================-->
     <SolidColorBrush x:Key="Button.SideMenu.BorderBrush" Color="#049BE5"/>
     <SolidColorBrush x:Key="Button.SideMenu.Background" Color="#424242"/>
-    <SolidColorBrush x:Key="Button.SideMenu.Disable.Background" Color="#5F5F5F"/>
+    <!--<SolidColorBrush x:Key="Button.SideMenu.Disable.Background" Color="#5F5F5F"/>-->
+    <SolidColorBrush x:Key="Button.SideMenu.Disable.Background" Color="#4C5F5F5F"/>
 
     <SolidColorBrush x:Key="Button.MouseOver.Bacground" Color="#292D36"/>
     <SolidColorBrush x:Key="Button.Pressed.Bacground" Color="#424242"/>
