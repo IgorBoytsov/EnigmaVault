@@ -31,6 +31,53 @@
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="1">
 
+                <Button Command="{Binding ToggoleRightSideMenuOnPagesCommand}"
+                        Style="{StaticResource Button.Management.Window}"
+                        HorizontalAlignment="Right"
+                        WindowChrome.IsHitTestVisibleInChrome="True"
+                        Margin="0,0,10,0">
+                    <Button.ToolTip>
+                        <ToolTip Content="Права боковая панель" 
+                                 Placement="Custom"
+                                 PlacementTarget="{Binding ElementName=BtnMinimize}"
+                                 CustomPopupPlacementCallback="{Binding BottomToolTipController.CustomPlacementCallback}"
+                                 Style="{StaticResource ToolTip.App.Placement.Bottom}"/>
+                    </Button.ToolTip>
+                    <Button.Content>
+                        <Grid Background="Transparent">
+                            <Control Template="{StaticResource PanelRightOpen}" 
+                                     Foreground="White" 
+                                     Margin="5">
+                                <Control.Style>
+                                    <Style TargetType="Control">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSidebarOpen}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Control.Style>
+                            </Control>
+
+                            <Control Template="{StaticResource PanelRightClose}" 
+                                     Foreground="White" 
+                                     Margin="5">
+                                <Control.Style>
+                                    <Style TargetType="Control">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSidebarOpen}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Control.Style>
+                            </Control>
+                        </Grid>
+                    </Button.Content>
+                </Button>
+
                 <Button x:Name="BtnMinimize"
                         Command="{Binding MinimizeWindowCommand}" 
                         CommandParameter="{x:Static enums:WindowsName.MainWindow}"

@@ -1,5 +1,6 @@
 ﻿using EnigmaVault.Desktop.Enums;
 using EnigmaVault.Desktop.ViewModels.Base;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace EnigmaVault.Desktop.Services.PageNavigation
@@ -81,6 +82,23 @@ namespace EnigmaVault.Desktop.Services.PageNavigation
         }
 
         public PagesName GetCurrentDisplayedPage(FramesName frameName) => _currenDisplayedPage.GetValueOrDefault(frameName);
+
+        public void ToggleSidebar(FramesName frameName)
+        {
+            if (_currenDisplayedPage.TryGetValue(frameName, out var pageName) && pageName != PagesName.None)
+                if (_pages.TryGetValue(pageName, out var page))
+                    if (page.DataContext is ISidebarController controller)
+                        controller.IsSidebarOpen = !controller.IsSidebarOpen;
+        }
+
+        public bool IsOpenSidebar(PagesName pagesName)
+        {
+            if (_pages.TryGetValue(pagesName, out var page))
+                if (page.DataContext is ISidebarController controller)
+                    return controller.IsSidebarOpen;
+
+            return false;
+        }
 
         #region Вспомогательные методы
 
