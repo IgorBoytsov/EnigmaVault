@@ -9,6 +9,7 @@
         public static Error Rule(string message) => new(ErrorCode.Rule, message);
 
         public static Error NotFound(string entityName, object id) => new(ErrorCode.NotFound, $"Сущность '{entityName}' с идентификатором '{id}' не найдена.");
+        public static Error NotFound(string message) => new(ErrorCode.NotFound, message);
         public static Error Validation(string message) => new(ErrorCode.Validation, message); 
         public static Error Conflict(string message) => new(ErrorCode.Conflict, message); 
         public static Error Server(string message) => new(ErrorCode.Server, message); 
