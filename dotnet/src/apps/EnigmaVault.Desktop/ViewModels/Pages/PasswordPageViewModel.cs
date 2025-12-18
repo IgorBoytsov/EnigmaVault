@@ -188,6 +188,43 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         #endregion
 
+
+        #region Свойства: IconCategories, Методы: [OnSelectedEditableCategoryChanging, OnSelectedEditableCategoryChanged, OnCategoryPropertyChanged]
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(SaveIconCategoryCommand))]
+        private string? _iconCategoryName;
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(UpdateIconCategortyCommand))]
+        private IconCategoryViewModel? _selectedEditableCategory;
+
+        partial void OnSelectedEditableCategoryChanging(IconCategoryViewModel? value)
+        {
+            if (SelectedEditableCategory is not null)
+                SelectedEditableCategory.PropertyChanged -= OnCategoryPropertyChanged;
+        }
+
+        partial void OnSelectedEditableCategoryChanged(IconCategoryViewModel? value)
+        {
+            if (value is not null)
+                value.PropertyChanged += OnCategoryPropertyChanged;
+
+            UpdateIconCategortyCommand.NotifyCanExecuteChanged();
+        }
+
+        private void OnCategoryPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(IconCategoryViewModel.HasChanges))
+                UpdateIconCategortyCommand.NotifyCanExecuteChanged();
+        }
+
+        #endregion
+
+        #endregion
+
+
+        #endregion
         #region SVG
 
         [ObservableProperty]
