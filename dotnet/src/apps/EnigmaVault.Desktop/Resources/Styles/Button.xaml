@@ -85,6 +85,24 @@
     </Style>
 
     <!-- ╔═════════════════════════════════════════════════════════════════════════════╗ -->
+    <!-- ║                              Сохранить/Обновить                             ║ -->
+    <!-- ╚═════════════════════════════════════════════════════════════════════════════╝ -->
+
+    <Style x:Key="Button.Save" TargetType="Button" BasedOn="{StaticResource Button.App}">
+        <!--<Setter Property="Background" Value="#3fbc34"/>-->
+        <Setter Property="Background" Value="#4BBAA9"/>
+        <Setter Property="Foreground" Value="Black"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    </Style>
+
+    <Style x:Key="Button.Update" TargetType="Button" BasedOn="{StaticResource Button.App}">
+        <Setter Property="Background" Value="#EED159"/>
+        <!--<Setter Property="Background" Value="#f5cc00"/>-->
+        <Setter Property="Foreground" Value="Black"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    </Style>
+
+    <!-- ╔═════════════════════════════════════════════════════════════════════════════╗ -->
     <!-- ║                                 MainWindow                                  ║ -->
     <!-- ╚═════════════════════════════════════════════════════════════════════════════╝ -->
 
