@@ -1,0 +1,66 @@
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using EnigmaVault.Desktop.Services;
+using EnigmaVault.Desktop.Services.Secure;
+using EnigmaVault.Desktop.ViewModels.Base;
+using Shared.Contracts.Enums;
+using System.Windows.Media;
+
+namespace EnigmaVault.Desktop.ViewModels.Components.Models.Vaults
+{
+    public abstract partial class VaultItemBaseViewModel : BaseViewModel
+    {
+        private EncryptedVaultViewModel? _model;
+
+        public VaultItemBaseViewModel(EncryptedVaultViewModel model, VaultType type)
+        {
+            _model = model;
+
+            if (_model != null)
+            {
+                _type = type;
+                _isReadOnly = false;
+                _isArchive = model.IsArchive;
+                _isInTrash = model.IsInTrash; 
+            }
+        }
+
+        [ObservableProperty]
+        private bool _isReadOnly;
+
+        [ObservableProperty]
+        private bool _isArchive;
+
+        [ObservableProperty]
+        private bool _isInTrash;
+
+        [ObservableProperty]
+        private VaultType _type;
+
+        public string Id => _model?.Id!;
+
+        [ObservableProperty]
+        private string _serviceName = null!;
+
+        [ObservableProperty]
+        private string? _note;
+
+        [ObservableProperty]
+        private string? _url;
+
+        [ObservableProperty]
+        private DrawingImage? _icon;
+
+        [ObservableProperty]
+        private string? _svgCode;
+
+        public abstract void Decrypt(string encryptedOverView, string encryptedDetails, ISecureDataService secureData, IUserContext context);
+
+        public abstract (string EncryptedOverView, string EncryptedDetails) Encrypt(ISecureDataService secureData, IUserContext context);
+
+        public abstract void Clear();
+
+        public void SetIsReadOnly(bool condition) => IsReadOnly = condition;
+
+        public void SetIcon(DrawingImage? icon) => Icon = icon;
+    }
+}

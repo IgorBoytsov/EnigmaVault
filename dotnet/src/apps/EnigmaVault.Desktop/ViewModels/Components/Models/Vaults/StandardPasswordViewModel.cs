@@ -1,0 +1,95 @@
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using EnigmaVault.Desktop.Models.Vaults;
+using EnigmaVault.Desktop.Services;
+using EnigmaVault.Desktop.Services.Secure;
+using Shared.Contracts.Enums;
+
+namespace EnigmaVault.Desktop.ViewModels.Components.Models.Vaults
+{
+    public sealed partial class StandardPasswordViewModel : VaultItemBaseViewModel
+    {
+        public StandardPasswordViewModel(EncryptedVaultViewModel model) : base(model, VaultType.Password)
+        {
+            
+        }
+
+        /// <summary>
+        /// Конструктор для режима дизайна
+        /// </summary>
+        public StandardPasswordViewModel() : base(null!, VaultType.Password)
+        {
+            ServiceName = "Тестовый сервис (Дизайн)";
+            Url = "http://design-mode.com";
+            Login = "design_user";
+            Password = "P@ssw0rd!";
+            Email = "DesignEmail@gmail.com";
+            Phone = "+1-234-567-8901";
+            SecretWord = "Design";
+            RecoveryKey = "RECOVERY-KEY-1234";
+        }
+
+        #region Расшифрованные данные
+
+        [ObservableProperty]
+        private string? _login;
+
+        [ObservableProperty]
+        private string? _password;
+
+        [ObservableProperty]
+        private string? _email;
+
+        [ObservableProperty]
+        private string? _phone;
+
+        [ObservableProperty]
+        private string? _secretWord;
+
+        [ObservableProperty]
+        private string? _recoveryKey;
+
+        #endregion
+
+        public override void Decrypt(string encryptedOverView, string encryptedDetails, ISecureDataService secureData, IUserContext context)
+        {
+            var overview = secureData.DecryptData<OverviewPayload>(encryptedOverView, context.Dek);
+            var details = secureData.DecryptData<StandardPassword>(encryptedDetails, context.Dek);
+
+            ServiceName = overview?.ServiceName!;
+            Url = overview?.Url;
+            Note = overview?.Note;
+
+            Login = details?.Login;
+            Password = details?.Password;
+            Email = details?.Email;
+            Phone = details?.Phone;
+            SecretWord = details?.SecredWord;
+            RecoveryKey = details?.RecoveryKey;
+        }
+
+        public override (string EncryptedOverView, string EncryptedDetails) Encrypt(ISecureDataService secureData, IUserContext context)
+        {
+            var overview = new OverviewPayload(ServiceName, Url!, Note, SvgCode);
+            var details = new StandardPassword(Login, Password, Email, Phone, SecretWord, RecoveryKey);
+
+            var encryptedOverview = secureData.EncryptData(overview, context.Dek);
+            var encryptedDetails = secureData.EncryptData(details, context.Dek);
+
+            return (encryptedOverview, encryptedDetails);
+        }
+
+        public override void Clear()
+        {
+            ServiceName = string.Empty;
+            Url = string.Empty;
+            SvgCode = string.Empty;
+
+            Login = string.Empty;
+            Password = string.Empty;
+            Email = string.Empty;
+            Phone = string.Empty;
+            SecretWord = string.Empty;
+            RecoveryKey = string.Empty;
+        }
+    }
+}
