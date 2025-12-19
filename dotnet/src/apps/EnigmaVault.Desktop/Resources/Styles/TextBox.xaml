@@ -24,12 +24,43 @@
     <!-- ║                                   Общие                                     ║ -->
     <!-- ╚═════════════════════════════════════════════════════════════════════════════╝ -->
 
-    <ControlTemplate x:Key="BaseTemplate" TargetType="TextBox" >
+    <ControlTemplate x:Key="BaseTemplate" TargetType="TextBox">
+        <Border x:Name="border" 
+                Background="{TemplateBinding Background}"
+                CornerRadius="3"
+                BorderThickness="1">
+            <ScrollViewer x:Name="PART_ContentHost" 
+                          Focusable="false"
+                          Foreground="#F0F1F3"
+                          HorizontalScrollBarVisibility="Hidden" 
+                          VerticalScrollBarVisibility="Hidden"/>
+        </Border>
+
+        <ControlTemplate.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsFocused" Value="True"/>
+                    <Condition Property="IsReadOnly" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="border" Property="BorderBrush" Value="#474747"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsMouseOver" Value="True"/>
+                    <Condition Property="IsReadOnly" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="border" Property="BorderBrush" Value="#474747"/>
+            </MultiTrigger>
+
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="InputPasswordDataTemplate" TargetType="TextBox">
         <Border x:Name="border" 
                 BorderBrush="{StaticResource Border.TextBox.BorderBrush}"
                 Background="{TemplateBinding Background}"
-                CornerRadius="0"
-                BorderThickness="0,0,0,3">
+                CornerRadius="6"
+                BorderThickness="1">
             <ScrollViewer x:Name="PART_ContentHost" 
                           Focusable="false"
                           Foreground="#F0F1F3"
@@ -48,7 +79,7 @@
     </ControlTemplate>
 
     <Style x:Key="TextBox.InputData" TargetType="TextBox">
-        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Background" Value="#313135"/>
         <Setter Property="Margin" Value="0,5,0,5"/>
         <Setter Property="FontSize" Value="16"/>
         <Setter Property="Margin" Value="0,5,0,5"/>
@@ -91,12 +122,24 @@
                         <Trigger Property="Text" Value="">
                             <Setter TargetName="Placeholder" Property="Visibility" Value="Visible"/>
                         </Trigger>
-                        <Trigger Property="IsFocused" Value="True">
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsFocused" Value="True"/>
+                                <Condition Property="IsReadOnly" Value="False"/>
+                            </MultiTrigger.Conditions>
                             <Setter TargetName="border" Property="BorderBrush" Value="#474747"/>
-                        </Trigger>
-                        <Trigger Property="IsMouseOver" Value="True">
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="IsReadOnly" Value="False"/>
+                            </MultiTrigger.Conditions>
                             <Setter TargetName="border" Property="BorderBrush" Value="#474747"/>
-                        </Trigger>
+                        </MultiTrigger>
+                        <!--<Trigger Property="IsReadOnly" Value="True">
+                             <Setter TargetName="border" Property="Background" Value="#F0F0F0"/> 
+                             <Setter TargetName="border" Property="BorderBrush" Value="LightGray"/> 
+                        </Trigger>-->
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
