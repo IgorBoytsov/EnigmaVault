@@ -31,6 +31,23 @@ namespace EnigmaVault.PasswordService.ApiClient.Clients
             }
         }
 
+        public async Task<Result<string>> UpdateAsync(UpdateVaultItemRequest request)
+        {
+            try
+            {
+                var response = await _httpClient.PutAsJsonAsync(_url, request, _jsonSerializerOptions);
+                response.EnsureSuccessStatusCode();
+
+                var result = await response.Content.ReadAsStringAsync();
+
+                return Result<string>.Success(result);
+            }
+            catch (Exception ex)
+            {
+                return Error.New(ErrorCode.ApiError, ex.Message);
+            }
+        }
+
         public async Task<Result<List<EncryptedVaultResponse>>> GetAllAsync(string userId)
         {
             try

@@ -11,10 +11,15 @@ namespace EnigmaVault.Desktop.ViewModels.Components.Models.Vaults
     public sealed partial class EncryptedVaultViewModel : BaseViewModel
     {
         private readonly EncryptedVaultResponse _model;
+        private readonly ISecureDataService _crypto;
+        private readonly byte[] _key;
 
         public EncryptedVaultViewModel(EncryptedVaultResponse model, ISecureDataService crypto, byte[] key)
         {
             _model = model;
+            _crypto = crypto;
+            _key = key;
+
             IsFavorite = model.IsFavorite;
             IsArchive = model.IsArchive;
             IsInTrash = model.IsInTrash;
@@ -28,21 +33,7 @@ namespace EnigmaVault.Desktop.ViewModels.Components.Models.Vaults
             if (model.DeletedAt is not null)
                 DeletedAt = model.DeletedAt.Value.ToLocalTime();
 
-            try
-            {
-                var overview = crypto.DecryptData<OverviewPayload>(EncryptedOverview, key);
-
-                if (overview != null)
-                {
-                    ServiceName = overview.ServiceName;
-                    Url = overview.Url;
-                    SvgCode = overview.SvgIcon!;
-                }
-            }
-            catch
-            {
-
-            }
+            Decrypt(EncryptedOverview);
         }
 
         public string Id => _model.Id;
@@ -84,5 +75,35 @@ namespace EnigmaVault.Desktop.ViewModels.Components.Models.Vaults
 
         [ObservableProperty]
         private DateTime? _deletedAt;
+
+        public void UpdateEncrypted(string encryptedOverview, string encryptedDetails)
+        {
+            EncryptedOverview = encryptedOverview;
+            EncryptedDetails = encryptedDetails;
+
+            Decrypt(encryptedOverview);
+        }
+
+        public void UpdateDate(DateTime dateUpdate) => DateUpdate = dateUpdate;
+
+        private void Decrypt(string encryptedOverview)
+        {
+
+            try
+            {
+                var overview = _crypto.DecryptData<OverviewPayload>(encryptedOverview, _key);
+
+                if (overview != null)
+                {
+                    ServiceName = overview.ServiceName;
+                    Url = overview.Url;
+                    SvgCode = overview.SvgIcon!;
+                }
+            }
+            catch
+            {
+
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.Create;
+using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.Update;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Queries.GetAll;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +29,25 @@ namespace EnigmaVault.PasswordService.Controllers
             if (result.IsFailure)
                 return BadRequest(result.StringMessage);
 
+            return Ok(result.Value);
+        }
+
+        /*--Update----------------------------------------------------------------------------------------*/
+
+        [HttpPut]
+        public async Task<IActionResult> Update([FromBody] UpdateVaultItemRequest request)
+        {
+           var command = new UpdateVaultItemCommand(
+               Guid.Parse(request.UserId),
+               Guid.Parse(request.VaultItemId),
+               Convert.FromBase64String(request.EncryptedOverview),
+               Convert.FromBase64String(request.EncryptedDetails));
+
+            var result = await _mediator.Send(command);
+
+           if (result.IsFailure)
+               return BadRequest(result.StringMessage);
+            
             return Ok(result.Value);
         }
 

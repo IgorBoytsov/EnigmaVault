@@ -379,6 +379,29 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         #endregion
 
+        #region Команда [UpdateVault]: Обноволение записи
+
+        [RelayCommand(CanExecute = nameof(CanUpdateVault))]
+        private async Task UpdateVault()
+        {
+            (string EncryptedOverView, string EncryptedDetails) = SelectedVaultItemBaseViewModel!.Encrypt(_secureDataService, _userContext);
+
+            var result = await _vaultService.UpdateAsync(new UpdateVaultItemRequest(_userContext.Id, SelectedEncryptedOverview!.Id, EncryptedOverView, EncryptedDetails));
+
+            if (result.IsFailure)
+            {
+                MessageBox.Show($"{result.StringMessage}");
+                return;
+            }
+
+            SelectedEncryptedOverview!.UpdateEncrypted(EncryptedOverView, EncryptedDetails);
+            SelectedEncryptedOverview!.UpdateDate(DateTime.Parse(result.Value).ToLocalTime());
+        }
+
+        private bool CanUpdateVault() => SelectedEncryptedOverview is not null;
+
+        #endregion
+
         #region Команда [CreateTagCommand]: Создает тэг
 
         [RelayCommand(CanExecute = nameof(CanCreateTag))]
