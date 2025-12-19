@@ -20,6 +20,8 @@ namespace EnigmaVault.PasswordService.Domain.ValueObjects.Password
 
         public static VaultItemId New() => new(Guid.NewGuid());
 
+        override public string ToString() => Value.ToString();
+
         public static implicit operator Guid(VaultItemId value) => value.Value;
     }
 }
