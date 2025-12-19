@@ -1,13 +1,15 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using EnigmaVault.Desktop.Enums;
-using EnigmaVault.Desktop.Helpers;
 using EnigmaVault.Desktop.Services;
 using EnigmaVault.Desktop.Services.PageNavigation;
+using EnigmaVault.Desktop.Services.Secure;
 using EnigmaVault.Desktop.ViewModels.Base;
 using EnigmaVault.Desktop.ViewModels.Components.Controller;
 using EnigmaVault.Desktop.ViewModels.Components.Models;
+using EnigmaVault.Desktop.ViewModels.Components.Models.Vaults;
 using EnigmaVault.PasswordService.ApiClient.Clients;
+using Shared.Contracts.Enums;
 using Shared.Contracts.Requests.PasswordService;
 using Shared.Contracts.Responses.PasswordService;
 using SharpVectors.Converters;
@@ -24,47 +26,33 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 {
     internal sealed partial class PasswordPageViewModel : BasePageViewModel, IAsyncInitializable, IUpdatable, ISidebarController
     {
-        public string FolderName { get; set; } = null!;
-        public DateTime DateAdded { get; set; }
-        public DateTime DateUpdate { get; set; }
-        public string Url { get; set; } = null!;
-        public string Image { get; set; } = null!;
-        public string ServiceName { get; set; } = null!;
-    }
-
-    internal sealed partial class PasswordPageViewModel : BasePageViewModel, IAsyncInitializable, IUpdatable
-    {
+        private readonly IVaultService _vaultService;
         private readonly ITagService _tagService;
         private readonly IIconCategoryService _iconCategoryService;
         private readonly IIconService _iconService;
         private readonly IUserContext _userContext;
+        private readonly ISecureDataService _secureDataService;
 
         /*--Инициализация---------------------------------------------------------------------------------*/
 
         public PasswordPageViewModel(
+            IVaultService vaultService,
             ITagService tagService,
             IIconCategoryService iconCategoryService,
             IIconService iconService,
-            IUserContext userContext)
+            IUserContext userContext,
+            ISecureDataService secureDataService)
         {
+            _vaultService = vaultService;
             _tagService = tagService;
             _iconCategoryService = iconCategoryService;
             _iconService = iconService;
             _userContext = userContext;
+            _secureDataService = secureDataService;
 
-            CurrentDisplayUserControl = UserControlsName.Tags;
-
-            var random = new Random();
-
-            Passwords = Enumerable.Range(0, 30).Select(x => new EncryptedPassword
-            {
-                DateAdded = DateTime.UtcNow.AddDays(random.Next(-80 , -20)),
-                DateUpdate = DateTime.UtcNow.AddDays(random.Next(-19, -1)),
-                FolderName = $"Папка номер {random.Next(0, 20)}",
-                Image = @"C:\Users\light\Downloads\f855982e-2b4e-4629-9c6f-6820e05690d9.png",
-                ServiceName = $"Сервис номер {random.Next(0, 100)}",
-                Url = "https://www.youtube.com/@ZUBAREV_CUTTING"
-            }).ToObservableCollection();
+            SelectedPasswordType = PasswordTypes.FirstOrDefault();
+            CurrentDisplayUserControlLeftSideMenu = UserControlsName.Tags;
+            CurrentActionRightSideMenu = ActionOnData.Create;
 
             IconView = CollectionViewSource.GetDefaultView(Icons);
             IconCategoryView = CollectionViewSource.GetDefaultView(IconCategories);
@@ -86,6 +74,8 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
                 await GetIconCategories();
                 await GetIcons();
 
+                await GetEncreptedOverview();
+
                 IsInitialize = true;
             }
             catch (Exception ex) 
@@ -101,7 +91,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         /*--Коллекции-------------------------------------------------------------------------------------*/
 
-        public ObservableCollection<EncryptedPassword> Passwords { get; init; } = [];
+        public ObservableCollection<EncryptedVaultViewModel> Passwords { get; init; } = [];
         public ObservableCollection<TagViewModel> Tags { get; init; } = [];
 
         public ObservableCollection<IconViewModel> Icons { get; init; } = [];
@@ -109,6 +99,14 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         public ObservableCollection<IconCategoryViewModel> IconCategories { get; init; } = [];
         public ICollectionView IconCategoryView { get; private init; } = null!;
+
+        public ObservableCollection<KeyValuePair<VaultType, string>> PasswordTypes { get; private set; } =
+        [
+            new KeyValuePair<VaultType, string>(VaultType.Password, "Пароль"),
+            new KeyValuePair<VaultType, string>(VaultType.Server, "Данные сервера"),
+            new KeyValuePair<VaultType, string>(VaultType.CreditCard, "Банковские карты"),
+            new KeyValuePair<VaultType, string>(VaultType.ApiKey, "Апи Ключи"),
+        ];
 
         /*--Свойства--------------------------------------------------------------------------------------*/
 
@@ -119,14 +117,31 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         public PopupController PasswordMenuPopup { get; } = new(); 
         public PopupController AddIconPopup { get; } = new(); 
-        public PopupController AddIconCategoryPopup { get; } = new(); 
+        public PopupController AddIconCategoryPopup { get; } = new();
+       
+        #region Свойства: [CurrentDisplayUserControlLeftSideMenu, CurrentDisplayUserControlRightSideMenu] - Текущий отображаемый элемент в боковых меню
 
         [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(SetSideMenuControlCommand))]
-        private UserControlsName _currentDisplayUserControl = UserControlsName.Folders;
+        [NotifyCanExecuteChangedFor(nameof(SetLeftSideMenuControlCommand))]
+        private UserControlsName _currentDisplayUserControlLeftSideMenu = UserControlsName.Folders;
 
         [ObservableProperty]
-        private EncryptedPassword? _selectedEncryptedPassword;
+        [NotifyCanExecuteChangedFor(nameof(SetRightSideMenuActionCommand))]
+        private ActionOnData _currentActionRightSideMenu = ActionOnData.View;
+
+        partial void OnCurrentActionRightSideMenuChanged(ActionOnData value)
+        {
+            SetReadOnly(value);
+
+            if (value == ActionOnData.Create || value == ActionOnData.Update)
+                SelectedIcon = Icons.FirstOrDefault(i => i.SvgCode == SelectedEncryptedOverview?.SvgCode);
+            else
+                SelectedIcon = null;
+        }
+
+        #endregion
+
+        #region Свойства: Tags, Метод: [OnSelectedTagChanged]
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateTagCommand))]
@@ -146,8 +161,6 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
                 value.SetColor(Color.FromRgb(byte.Parse(UpdateRed), byte.Parse(UpdateGreen), byte.Parse(UpdateBlue)));
             }
         }
-
-        #region Цвета
 
         [ObservableProperty]
         private string _red = "255";
@@ -186,8 +199,31 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
                 SelectedTag?.SetColor(System.Windows.Media.Color.FromRgb(r, g, b));
         }
 
+
         #endregion
 
+        #region Свойство: [SelectedIcon]
+
+        [ObservableProperty]
+        private IconViewModel? _selectedIcon;
+
+        partial void OnSelectedIconChanged(IconViewModel? value)
+        {
+            if (value is null)
+                return;
+
+            if (CurrentActionRightSideMenu is ActionOnData.Create || CurrentActionRightSideMenu is ActionOnData.Update)
+            {
+                if (SelectedVaultItemBaseViewModel is null)
+                    return;
+
+                string? code = SelectedIcon?.SvgCode;
+                SelectedVaultItemBaseViewModel.SvgCode = code;
+                SelectedVaultItemBaseViewModel?.SetIcon(ConvertSvgInString(code!));
+            }
+        }
+
+        #endregion
 
         #region Свойства: IconCategories, Методы: [OnSelectedEditableCategoryChanging, OnSelectedEditableCategoryChanged, OnCategoryPropertyChanged]
 
@@ -219,12 +255,54 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
                 UpdateIconCategortyCommand.NotifyCanExecuteChanged();
         }
 
-        #endregion
 
         #endregion
 
+        #region Свойсто: [SelectedEncryptedOverview] - Выбор зашифрованного элемента
+
+        [ObservableProperty]
+        private EncryptedVaultViewModel? _selectedEncryptedOverview;
+
+        partial void OnSelectedEncryptedOverviewChanged(EncryptedVaultViewModel? value)
+        {
+            if (value is null)
+                return;
+
+            CreateViewModelForType(value.Type, value);
+            SelectedPasswordType = PasswordTypes.FirstOrDefault(pt => pt.Key == value.Type);
+            CurrentActionRightSideMenu = ActionOnData.View;
+            SetReadOnly(CurrentActionRightSideMenu);
+            SelectedVaultItemBaseViewModel?.Decrypt(value.EncryptedOverview, value.EncryptedDetails, _secureDataService, _userContext);
+            SelectedVaultItemBaseViewModel?.SetIcon(ConvertSvgInString(value.SvgCode!));
+        }
 
         #endregion
+
+        #region Свойство: [SelectedPasswordType], Метод [OnSelectedPasswordTypeChanged]
+
+        [ObservableProperty]
+        private KeyValuePair<VaultType, string> _selectedPasswordType;
+
+        partial void OnSelectedPasswordTypeChanged(KeyValuePair<VaultType, string> value)
+        {
+            CreateViewModelForType(value.Key, SelectedEncryptedOverview!);
+            SetReadOnly(CurrentActionRightSideMenu);
+        }
+
+        #endregion
+
+        #region Свойсто: [SelectedPasswordViewModel]
+
+        [ObservableProperty]
+        private VaultItemBaseViewModel? _selectedVaultItemBaseViewModel;
+
+        partial void OnSelectedVaultItemBaseViewModelChanged(VaultItemBaseViewModel? value)
+        {
+            value?.SetIsReadOnly(CurrentActionRightSideMenu != ActionOnData.View);
+        }
+
+        #endregion
+
         #region SVG
 
         [ObservableProperty]
@@ -263,39 +341,43 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         #endregion
 
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(SaveIconCategoryCommand))]
-        private string? _iconCategoryName;
+        /*--Команды---------------------------------------------------------------------------------------*/
 
-        #region Свойство: [SelectedEditableCategory], Методы: [OnSelectedEditableCategoryChanging, OnSelectedEditableCategoryChanged, OnCategoryPropertyChanged]
+        #region Команда [CreateVault]: Создание зашифрованного элемента
 
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(UpdateIconCategortyCommand))]
-        private IconCategoryViewModel? _selectedEditableCategory;
-
-        partial void OnSelectedEditableCategoryChanging(IconCategoryViewModel? value)
+        [RelayCommand]
+        public async Task CreateVault()
         {
-            if (SelectedEditableCategory is not null)
-                SelectedEditableCategory.PropertyChanged -= OnCategoryPropertyChanged;
-        }
+            (string EncryptedOverView, string EncryptedDetails) = SelectedVaultItemBaseViewModel!.Encrypt(_secureDataService, _userContext);
 
-        partial void OnSelectedEditableCategoryChanged(IconCategoryViewModel? value)
-        {
-            if (value is not null)
-                value.PropertyChanged += OnCategoryPropertyChanged;
+            var result = await _vaultService.CreateAsync(new CreateVaultItemRequest(_userContext.Id, SelectedPasswordType.Key.ToString(), EncryptedOverView, EncryptedDetails));
 
-            UpdateIconCategortyCommand.NotifyCanExecuteChanged();
-        }
+            if (result.IsFailure)
+            {
+                MessageBox.Show($"{result.StringMessage}");
+                return;
+            }
 
-        private void OnCategoryPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(IconCategoryViewModel.HasChanges))
-                UpdateIconCategortyCommand.NotifyCanExecuteChanged();
+            var encryptedVm = new EncryptedVaultViewModel(
+                    new EncryptedVaultResponse(
+                        result.Value,
+                        SelectedPasswordType.Key.ToString(),
+                        DateTime.Now,
+                        DateUpdate: null,
+                        DeletedAt: null,
+                        IsFavorite: false,
+                        IsArchive: false,
+                        IsInTrash: false,
+                        Convert.FromBase64String(EncryptedOverView),
+                        Convert.FromBase64String(EncryptedDetails)),
+                    _secureDataService, _userContext.Dek);
+
+            encryptedVm.Icon = ConvertSvgInString(encryptedVm.SvgCode);
+
+            Passwords.Add(encryptedVm);
         }
 
         #endregion
-
-        /*--Команды---------------------------------------------------------------------------------------*/
 
         #region Команда [CreateTagCommand]: Создает тэг
 
@@ -356,23 +438,32 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         #endregion
 
-        #region Команда [SetSideMenuControlCommand]: Отвечает за выбор текущего оборажаемого контрола на боковой понели
+        #region Команда [SetLeftSideMenuControlCommand]: Отвечает за выбор текущего оборажаемого контрола на левой боковой понели
 
-        [RelayCommand(CanExecute = nameof(CanSetSideMenuControl))]
-        private void SetSideMenuControl(UserControlsName controlName) => CurrentDisplayUserControl = controlName;
+        [RelayCommand(CanExecute = nameof(CanSetLeftSideMenuControl))]
+        private void SetLeftSideMenuControl(UserControlsName controlName) => CurrentDisplayUserControlLeftSideMenu = controlName;
 
-        private bool CanSetSideMenuControl(UserControlsName controlsName) => CurrentDisplayUserControl != controlsName;
+        private bool CanSetLeftSideMenuControl(UserControlsName controlsName) => CurrentDisplayUserControlLeftSideMenu != controlsName;
+
+        #endregion
+
+        #region Команда [SetRightSideMenuActionCommand]: Отвечает за выбор текущего действия на правой боковой понели
+
+        [RelayCommand(CanExecute = nameof(CanSetRightSideMenuAction))]
+        private void SetRightSideMenuAction(ActionOnData action) => CurrentActionRightSideMenu = action;
+
+        private bool CanSetRightSideMenuAction(ActionOnData action) => CurrentActionRightSideMenu != action;
 
         #endregion
 
         #region Команда [SelectAndShowPasswordMenuPopup]: Отвечает за выбор элемента списка при открытие контекстного меню 
 
         [RelayCommand]
-        private void SelectAndShowPasswordMenuPopup(EncryptedPassword password)
+        private void SelectAndShowPasswordMenuPopup(EncryptedVaultViewModel password)
         {
             if (password is null) return;
 
-            SelectedEncryptedPassword = password;
+            SelectedEncryptedOverview = password;
 
             PasswordMenuPopup.ShowAtMouse();
         }
@@ -391,9 +482,13 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
                 MessageBox.Show(result.StringMessage);
                 return;
             }
+            var iconVm = new IconViewModel(new IconResponse(result.Value, _userContext.Id, SvgCode!, "", SelectedIconCategory.Id));
+            iconVm.SetIcon(ConvertSvgInString(iconVm.SvgCode!));
+            var ict = IconCategories.FirstOrDefault(ic => ic.Id == SelectedIconCategory.Id);
+            iconVm.SetCategory(ict);
 
-            Icons.Add(new IconViewModel(new IconResponse(result.Value, _userContext.Id, SvgCode!, "", SelectedIconCategory.Id)));
-
+            Icons.Add(iconVm);
+           
             Svg = null;
             SvgCode = string.Empty;
             SelectedIconCategory = null;
@@ -485,13 +580,31 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
             IconCategories.Remove(valueToRemove);
         }
-        
+
 
         #endregion
 
         /*--Методы----------------------------------------------------------------------------------------*/
 
         #region Получение данных
+
+        public async Task GetEncreptedOverview()
+        {
+            var result = await _vaultService.GetAllAsync(_userContext.Id);
+
+            if (result.IsFailure)
+            {
+                MessageBox.Show(result.StringMessage);
+                return;
+            }
+
+            foreach (var encrypted in result.Value)
+            {
+                var encryptedVm = new EncryptedVaultViewModel(encrypted, _secureDataService, _userContext.Dek);
+                encryptedVm.Icon = ConvertSvgInString(encryptedVm.SvgCode!);
+                Passwords.Add(encryptedVm);
+            }
+        }
 
         public async Task GetTags()
         {
@@ -539,26 +652,6 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         #endregion
 
         #region Преобразование Svg
-
-        //private DrawingImage? ConvertSVG(string? svgCode)
-        //{
-        //    ArgumentNullException.ThrowIfNull(_defaultIcon, nameof(_defaultIcon));
-
-        //    if (string.IsNullOrWhiteSpace(svgCode))
-        //        return _defaultIcon;
-
-        //    if (_iconCache.TryGetValue(svgCode, out var cachedIcon))
-        //        return cachedIcon;
-
-        //    var svgString = ReplaceDoubleQuotesWithSingle(svgCode)!;
-        //    var newIcon = ConvertSvgInString(svgString);
-
-        //    if (newIcon is null)
-        //        return _defaultIcon!;
-
-        //    _iconCache[svgCode] = newIcon;
-        //    return newIcon;
-        //}
 
         private DrawingImage? ConvertSvgInString(string svgCode)
         {
@@ -630,6 +723,22 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         #endregion
 
+        private void CreateViewModelForType(VaultType type, EncryptedVaultViewModel encryptedVm)
+        {
+            var encrypted = encryptedVm;
+
+            encrypted ??= new(new EncryptedVaultResponse(string.Empty, SelectedPasswordType.Key.ToString(), DateTime.UtcNow, null, null, false, false, false, [], []), _secureDataService, _userContext.Dek);
+
+            SelectedVaultItemBaseViewModel = type switch
+            {
+                VaultType.Password => new StandardPasswordViewModel(encrypted),
+                VaultType.Server => new ServerPasswordViewModel(encrypted),
+                VaultType.ApiKey => new ApiKeyViewModel(encrypted),
+                VaultType.CreditCard => new CreditCardViewModel(encrypted),
+                _ => null,
+            };
+        }
+
         #region Управление правым боковым меню
 
         [ObservableProperty]
@@ -650,5 +759,12 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         #endregion
 
+        private void SetReadOnly(ActionOnData action)
+        {
+            if (action == ActionOnData.View)
+                SelectedVaultItemBaseViewModel?.SetIsReadOnly(true);
+            else
+                SelectedVaultItemBaseViewModel?.SetIsReadOnly(false);
+        }
     }
 }
