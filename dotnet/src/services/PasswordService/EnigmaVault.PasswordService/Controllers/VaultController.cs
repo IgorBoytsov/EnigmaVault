@@ -69,7 +69,7 @@ namespace EnigmaVault.PasswordService.Controllers
         [HttpPatch("remove-favorites/{userId}/{vaultId}")]
         public async Task<IActionResult> RemoveFromFavorites([FromRoute] Guid userId, [FromRoute] Guid vaultId)
         {
-           var command = new RemoveFromFavoritesCommand(vaultId, userId);
+           var command = new RemoveFromFavoritesVaultCommand(vaultId, userId);
 
             var result = await _mediator.Send(command);
 

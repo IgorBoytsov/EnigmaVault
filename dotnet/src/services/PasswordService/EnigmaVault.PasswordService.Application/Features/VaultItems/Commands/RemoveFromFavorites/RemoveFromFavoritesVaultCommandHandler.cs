@@ -6,14 +6,14 @@ using Unit = Common.Core.Results.Unit;
 
 namespace EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.RemoveFromFavorites
 {
-    public sealed class RemoveFromFavoritesCommandHandler(
+    public sealed class RemoveFromFavoritesVaultCommandHandler(
         IVaultItemRepository vaultItemRepository,
-        IUnitOfWork unitOfWork) : IRequestHandler<RemoveFromFavoritesCommand, Result<Unit>>
+        IUnitOfWork unitOfWork) : IRequestHandler<RemoveFromFavoritesVaultCommand, Result<Unit>>
     {
         private readonly IVaultItemRepository _vaultItemRepository = vaultItemRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public async Task<Result<Unit>> Handle(RemoveFromFavoritesCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Unit>> Handle(RemoveFromFavoritesVaultCommand request, CancellationToken cancellationToken)
         {
             try
             {
