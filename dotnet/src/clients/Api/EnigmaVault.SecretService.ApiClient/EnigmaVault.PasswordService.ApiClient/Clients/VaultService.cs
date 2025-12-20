@@ -48,6 +48,36 @@ namespace EnigmaVault.PasswordService.ApiClient.Clients
             }
         }
 
+        public async Task<Result<Unit>> AddToFavoritesAsync(string userId, string vaultId)
+        {
+            try
+            {
+                var response = await _httpClient.PatchAsync($"{_url}/add-favorites/{userId}/{vaultId}", null);
+                response.EnsureSuccessStatusCode();
+
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Error.New(ErrorCode.ApiError, ex.Message);
+            }
+        }
+
+        public async Task<Result<Unit>> RemoveFromFavoritesAsync(string userId, string vaultId)
+        {
+            try
+            {
+                var response = await _httpClient.PatchAsync($"{_url}/remove-favorites/{userId}/{vaultId}", null);
+                response.EnsureSuccessStatusCode();
+
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Error.New(ErrorCode.ApiError, ex.Message);
+            }
+        }
+
         public async Task<Result<List<EncryptedVaultResponse>>> GetAllAsync(string userId)
         {
             try

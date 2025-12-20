@@ -1,4 +1,6 @@
-﻿using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.Create;
+﻿using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.AddToFavorites;
+using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.Create;
+using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.RemoveFromFavorites;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.Update;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Queries.GetAll;
 using MediatR;
@@ -37,18 +39,44 @@ namespace EnigmaVault.PasswordService.Controllers
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] UpdateVaultItemRequest request)
         {
-           var command = new UpdateVaultItemCommand(
-               Guid.Parse(request.UserId),
-               Guid.Parse(request.VaultItemId),
-               Convert.FromBase64String(request.EncryptedOverview),
-               Convert.FromBase64String(request.EncryptedDetails));
+            var command = new UpdateVaultItemCommand(
+                Guid.Parse(request.UserId),
+                Guid.Parse(request.VaultItemId),
+                Convert.FromBase64String(request.EncryptedOverview),
+                Convert.FromBase64String(request.EncryptedDetails));
+
+            var result = await _mediator.Send(command);
+
+            if (result.IsFailure)
+                return BadRequest(result.StringMessage);
+
+            return Ok(result.Value);
+        }
+
+        [HttpPatch("add-favorites/{userId}/{vaultId}")]
+        public async Task<IActionResult> AddToFavorites([FromRoute] Guid userId, [FromRoute] Guid vaultId)
+        {
+           var command = new AddToFavoritesVaultCommand(vaultId, userId);
 
             var result = await _mediator.Send(command);
 
            if (result.IsFailure)
                return BadRequest(result.StringMessage);
             
-            return Ok(result.Value);
+            return Ok();
+        }
+
+        [HttpPatch("remove-favorites/{userId}/{vaultId}")]
+        public async Task<IActionResult> RemoveFromFavorites([FromRoute] Guid userId, [FromRoute] Guid vaultId)
+        {
+           var command = new RemoveFromFavoritesCommand(vaultId, userId);
+
+            var result = await _mediator.Send(command);
+
+           if (result.IsFailure)
+               return BadRequest(result.StringMessage);
+            
+            return Ok();
         }
 
         /*--Get-------------------------------------------------------------------------------------------*/

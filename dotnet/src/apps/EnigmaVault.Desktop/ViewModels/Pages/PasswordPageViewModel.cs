@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Common.Core.Results;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using EnigmaVault.Desktop.Enums;
 using EnigmaVault.Desktop.Services;
@@ -399,6 +400,38 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         }
 
         private bool CanUpdateVault() => SelectedEncryptedOverview is not null;
+
+        #endregion
+
+        #region Команда [SetFavorite]: Измнение статуса избранного
+
+        [RelayCommand(CanExecute = nameof(CanSetFavorite))]
+        private async Task SetFavorite(EncryptedVaultViewModel model)
+        {
+            void SetValue(Result<Unit> result, bool condition)
+            {
+                if (result.IsFailure)
+                {
+                    MessageBox.Show($"{result.StringMessage}");
+                    return;
+                }
+
+                model!.IsFavorite = condition;
+            }
+
+            if (model.IsFavorite)
+            {
+                var result = await _vaultService.RemoveFromFavoritesAsync(_userContext.Id, model.Id);
+                SetValue(result, false);
+            }
+            else
+            {
+                var result = await _vaultService.AddToFavoritesAsync(_userContext.Id, model.Id);
+                SetValue(result, true);
+            }
+        }
+
+        private bool CanSetFavorite(EncryptedVaultViewModel model) => model is not null;
 
         #endregion
 
