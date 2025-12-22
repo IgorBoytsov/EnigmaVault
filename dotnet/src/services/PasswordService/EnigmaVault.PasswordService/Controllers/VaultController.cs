@@ -1,6 +1,8 @@
 ﻿using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.AddToFavorites;
+using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.Archive;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.Create;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.RemoveFromFavorites;
+using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.UnArchive;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.Update;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Queries.GetAll;
 using MediatR;
@@ -70,6 +72,32 @@ namespace EnigmaVault.PasswordService.Controllers
         public async Task<IActionResult> RemoveFromFavorites([FromRoute] Guid userId, [FromRoute] Guid vaultId)
         {
            var command = new RemoveFromFavoritesVaultCommand(vaultId, userId);
+
+            var result = await _mediator.Send(command);
+
+           if (result.IsFailure)
+               return BadRequest(result.StringMessage);
+            
+            return Ok();
+        }
+
+        [HttpPatch("archive/{userId}/{vaultId}")]
+        public async Task<IActionResult> Archive([FromRoute] Guid userId, [FromRoute] Guid vaultId)
+        {
+           var command = new ArchiveVaultCommand(vaultId, userId);
+
+            var result = await _mediator.Send(command);
+
+           if (result.IsFailure)
+               return BadRequest(result.StringMessage);
+            
+            return Ok();
+        }
+
+        [HttpPatch("un-archive/{userId}/{vaultId}")]
+        public async Task<IActionResult> UnArchive([FromRoute] Guid userId, [FromRoute] Guid vaultId)
+        {
+           var command = new UnArchiveVaultCommand(vaultId, userId);
 
             var result = await _mediator.Send(command);
 

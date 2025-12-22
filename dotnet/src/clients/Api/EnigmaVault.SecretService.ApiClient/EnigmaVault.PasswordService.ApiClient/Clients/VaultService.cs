@@ -78,6 +78,36 @@ namespace EnigmaVault.PasswordService.ApiClient.Clients
             }
         }
 
+        public async Task<Result<Unit>> ArchiveAsync(string userId, string vaultId)
+        {
+            try
+            {
+                var response = await _httpClient.PatchAsync($"{_url}/archive/{userId}/{vaultId}", null);
+                response.EnsureSuccessStatusCode();
+
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Error.New(ErrorCode.ApiError, ex.Message);
+            }
+        }
+
+        public async Task<Result<Unit>> UnArchiveAsync(string userId, string vaultId)
+        {
+            try
+            {
+                var response = await _httpClient.PatchAsync($"{_url}/un-archive/{userId}/{vaultId}", null);
+                response.EnsureSuccessStatusCode();
+
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Error.New(ErrorCode.ApiError, ex.Message);
+            }
+        }
+
         public async Task<Result<List<EncryptedVaultResponse>>> GetAllAsync(string userId)
         {
             try

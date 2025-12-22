@@ -16,10 +16,12 @@ using Shared.Contracts.Responses.PasswordService;
 using SharpVectors.Converters;
 using SharpVectors.Renderers.Wpf;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -60,6 +62,13 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
             UpdateIconsView();
             UpdateIconCategoriesView();
+
+            ArchivesPopup = new(PopupPlacementMode.CustomRightUp, PlacementMode.Custom, () => ArchivedPasswords.Count > 0);
+
+            ArchivedPasswords.CollectionChanged += (s, e) =>
+            {
+                ArchivesPopup?.UpdateCanExecute();
+            };
         }
 
         public async Task InitializeAsync()
@@ -93,6 +102,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         /*--Коллекции-------------------------------------------------------------------------------------*/
 
         public ObservableCollection<EncryptedVaultViewModel> Passwords { get; init; } = [];
+        public ObservableCollection<EncryptedVaultViewModel> ArchivedPasswords { get; init; } = [];
         public ObservableCollection<TagViewModel> Tags { get; init; } = [];
 
         public ObservableCollection<IconViewModel> Icons { get; init; } = [];
@@ -119,7 +129,8 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         public PopupController PasswordMenuPopup { get; } = new(); 
         public PopupController AddIconPopup { get; } = new(); 
         public PopupController AddIconCategoryPopup { get; } = new();
-       
+        public PopupController ArchivesPopup { get; }
+
         #region Свойства: [CurrentDisplayUserControlLeftSideMenu, CurrentDisplayUserControlRightSideMenu] - Текущий отображаемый элемент в боковых меню
 
         [ObservableProperty]
@@ -279,6 +290,13 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         #endregion
 
+        #region Свойсто: [SelectedArchivedEncryptedOverview] - Выбор зашифрованного элемента в архиве
+
+        [ObservableProperty]
+        private EncryptedVaultViewModel? _selectedArchivedEncryptedOverview;
+
+        #endregion
+
         #region Свойство: [SelectedPasswordType], Метод [OnSelectedPasswordTypeChanged]
 
         [ObservableProperty]
@@ -432,6 +450,54 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         }
 
         private bool CanSetFavorite(EncryptedVaultViewModel model) => model is not null;
+
+        #endregion
+
+        #region Команда [SetArchive]: Измнение статуса архивации
+
+        [RelayCommand(CanExecute = nameof(CanSetArchive))]
+        private async Task SetArchive(EncryptedVaultViewModel model)
+        {
+            void SetValue(Result<Unit> result, bool condition)
+            {
+                if (result.IsFailure)
+                {
+                    MessageBox.Show($"{result.StringMessage}");
+                    return;
+                }
+
+                model!.IsArchive = condition;
+
+                if (condition)
+                {
+                    Passwords.Remove(model);
+                    ArchivedPasswords.Add(model);
+                }
+                else
+                {
+                    ArchivedPasswords.Remove(model);
+                    Passwords.Add(model);
+                }
+
+                PasswordMenuPopup.HideCommand.Execute(null);
+            }
+
+            if (model.IsArchive)
+            {
+                var result = await _vaultService.UnArchiveAsync(_userContext.Id, model.Id);
+                SetValue(result, false);
+
+                if (ArchivedPasswords.Count <= 0)
+                    ArchivesPopup.HideCommand.Execute(null);
+            }
+            else
+            {
+                var result = await _vaultService.ArchiveAsync(_userContext.Id, model.Id);
+                SetValue(result, true);
+            }
+        }
+
+        private bool CanSetArchive(EncryptedVaultViewModel model) => model is not null;
 
         #endregion
 
@@ -658,6 +724,13 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
             {
                 var encryptedVm = new EncryptedVaultViewModel(encrypted, _secureDataService, _userContext.Dek);
                 encryptedVm.Icon = ConvertSvgInString(encryptedVm.SvgCode!);
+
+                if (encrypted.IsArchive)
+                {
+                    ArchivedPasswords.Add(encryptedVm);
+                    continue;
+                }
+                
                 Passwords.Add(encryptedVm);
             }
         }
