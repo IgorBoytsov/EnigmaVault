@@ -41,7 +41,6 @@ namespace EnigmaVault.Desktop.ViewModels.Components.Controller
         [RelayCommand(CanExecute = nameof(CanShow))]
         private void Show(UIElement target)
         {
-            CurrentPlacement = PlacementMode.Left;
             PlacementTarget = target;
             IsOpen = true;
         }
@@ -69,6 +68,8 @@ namespace EnigmaVault.Desktop.ViewModels.Components.Controller
 
         /*--Дополнительная логика-------------------------------------------------------------------------*/
 
+        public void UpdateCanExecute() => ShowCommand.NotifyCanExecuteChanged();
+
         [ObservableProperty]
         private double _height = double.NaN;
 
@@ -88,13 +89,13 @@ namespace EnigmaVault.Desktop.ViewModels.Components.Controller
 
         private CustomPopupPlacement[] PlacePopupRightUp(Size popupSize, Size targetSize, Point offset)
         {
-            if (PlacementTarget is FrameworkElement target)
-            {
-                double xOffset = target.ActualWidth;
-                double yOffset = 0;
-                return [new CustomPopupPlacement(new Point(xOffset + 10, (yOffset - popupSize.Height) + 25), PopupPrimaryAxis.Vertical)];
-            }
-            return [new CustomPopupPlacement(new Point(0, 0), PopupPrimaryAxis.Vertical)];
+            double xOffset = targetSize.Width;
+            double pHeight = popupSize.Height > 0 ? popupSize.Height : 200;
+
+            double x = xOffset + 10;
+            double y = (0 - pHeight) + 25;
+
+            return [new CustomPopupPlacement(new Point(x, y), PopupPrimaryAxis.Vertical)];
         }
     }
 }
