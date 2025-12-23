@@ -68,14 +68,14 @@ namespace EnigmaVault.PasswordService.Domain.Models
             IsFavorite = isFavorite;
         }
 
-        public void SetArchive(bool isFavorite)
+        public void SetArchive(bool isArchive)
         {
-            if (IsFavorite == isFavorite)
+            if (IsArchive == isArchive)
                 return;
             
-            Guard.Against.That(isFavorite && IsInTrash, () => new DomainException(Error.Validation("Нельзя архивировать запись, находящуюся в корзине")));
+            Guard.Against.That(isArchive && IsInTrash, () => new DomainException(Error.Validation("Нельзя архивировать запись, находящуюся в корзине")));
 
-            IsFavorite = isFavorite;
+            IsArchive = isArchive;
             UpdateDate();
         }
 
