@@ -103,6 +103,22 @@
     </Style>
 
     <!-- ╔═════════════════════════════════════════════════════════════════════════════╗ -->
+    <!-- ║                              Востановить/Удалить                            ║ -->
+    <!-- ╚═════════════════════════════════════════════════════════════════════════════╝ -->
+
+    <Style x:Key="Button.Restore" TargetType="Button" BasedOn="{StaticResource Button.App}">
+        <Setter Property="Background" Value="#ffea00"/>
+        <Setter Property="Foreground" Value="Black"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    </Style>
+
+    <Style x:Key="Button.Delete" TargetType="Button" BasedOn="{StaticResource Button.App}">
+        <Setter Property="Background" Value="#f08080"/>
+        <Setter Property="Foreground" Value="Black"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    </Style>
+
+    <!-- ╔═════════════════════════════════════════════════════════════════════════════╗ -->
     <!-- ║                                 MainWindow                                  ║ -->
     <!-- ╚═════════════════════════════════════════════════════════════════════════════╝ -->
 
