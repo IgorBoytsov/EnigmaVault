@@ -108,6 +108,84 @@ namespace EnigmaVault.PasswordService.ApiClient.Clients
             }
         }
 
+        public async Task<Result<Unit>> DeleteAsync(string userId, string vaultId)
+        {
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"{_url}/{userId}/{vaultId}");
+                response.EnsureSuccessStatusCode();
+
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Error.New(ErrorCode.ApiError, ex.Message);
+            }
+        }
+
+        public async Task<Result<DateTime>> MoveToTrashAsync(string userId, string vaultId)
+        {
+            try
+            {
+                var response = await _httpClient.PatchAsync($"{_url}/move-to-trash/{userId}/{vaultId}", null);
+                response.EnsureSuccessStatusCode();
+
+                var dateTimeValue = await response.Content.ReadFromJsonAsync<DateTime>();
+                var dateTimeLocal = dateTimeValue.ToLocalTime();
+
+                return Result<DateTime>.Success(dateTimeLocal);
+            }
+            catch (Exception ex)
+            {
+                return Error.New(ErrorCode.ApiError, ex.Message);
+            }
+        }
+
+        public async Task<Result<Unit>> RestoreFromTrashAsync(string userId, string vaultId)
+        {
+            try
+            {
+                var response = await _httpClient.PatchAsync($"{_url}/restore-from-trash/{userId}/{vaultId}", null);
+                response.EnsureSuccessStatusCode();
+
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Error.New(ErrorCode.ApiError, ex.Message);
+            }
+        }
+
+        public async Task<Result<Unit>> RestoreAllFromTrashAsync(string userId)
+        {
+            try
+            {
+                var response = await _httpClient.PatchAsync($"{_url}/restore-all-from-trash/{userId}", null);
+                response.EnsureSuccessStatusCode();
+
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Error.New(ErrorCode.ApiError, ex.Message);
+            }
+        }
+
+        public async Task<Result<Unit>> EmptyTrashAsync(string userId)
+        {
+            try
+            {
+                var response = await _httpClient.PatchAsync($"{_url}/empty-trash/{userId}", null);
+                response.EnsureSuccessStatusCode();
+
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Error.New(ErrorCode.ApiError, ex.Message);
+            }
+        }
+
         public async Task<Result<List<EncryptedVaultResponse>>> GetAllAsync(string userId)
         {
             try

@@ -12,6 +12,11 @@ namespace EnigmaVault.PasswordService.ApiClient.Clients
         Task<Result<Unit>> RemoveFromFavoritesAsync(string userId, string vaultId);
         Task<Result<Unit>> ArchiveAsync(string userId, string vaultId);
         Task<Result<Unit>> UnArchiveAsync(string userId, string vaultId);
+        Task<Result<Unit>> DeleteAsync(string userId, string vaultId);
+        Task<Result<DateTime>> MoveToTrashAsync(string userId, string vaultId);
+        Task<Result<Unit>> RestoreFromTrashAsync(string userId, string vaultId);
+        Task<Result<Unit>> RestoreAllFromTrashAsync(string userId);
+        Task<Result<Unit>> EmptyTrashAsync(string userId);
         Task<Result<List<EncryptedVaultResponse>>> GetAllAsync(string userId);
     }
 }

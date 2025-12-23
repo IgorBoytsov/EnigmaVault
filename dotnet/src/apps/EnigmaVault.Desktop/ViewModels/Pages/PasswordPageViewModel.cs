@@ -16,7 +16,6 @@ using Shared.Contracts.Responses.PasswordService;
 using SharpVectors.Converters;
 using SharpVectors.Renderers.Wpf;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
@@ -69,6 +68,15 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
             {
                 ArchivesPopup?.UpdateCanExecute();
             };
+
+            TrashPopup = new(PopupPlacementMode.CustomRightUp, PlacementMode.Custom, () => TrashPasswords.Count > 0);
+
+            TrashPasswords.CollectionChanged += (s, e) =>
+            {
+                TrashPopup?.UpdateCanExecute();
+                RestoreAllTrashCommand.NotifyCanExecuteChanged();
+                EmptyTrashCommand.NotifyCanExecuteChanged();
+            };
         }
 
         public async Task InitializeAsync()
@@ -103,6 +111,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         public ObservableCollection<EncryptedVaultViewModel> Passwords { get; init; } = [];
         public ObservableCollection<EncryptedVaultViewModel> ArchivedPasswords { get; init; } = [];
+        public ObservableCollection<EncryptedVaultViewModel> TrashPasswords { get; init; } = [];
         public ObservableCollection<TagViewModel> Tags { get; init; } = [];
 
         public ObservableCollection<IconViewModel> Icons { get; init; } = [];
@@ -130,6 +139,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         public PopupController AddIconPopup { get; } = new(); 
         public PopupController AddIconCategoryPopup { get; } = new();
         public PopupController ArchivesPopup { get; }
+        public PopupController TrashPopup { get; }
 
         #region Свойства: [CurrentDisplayUserControlLeftSideMenu, CurrentDisplayUserControlRightSideMenu] - Текущий отображаемый элемент в боковых меню
 
@@ -294,6 +304,13 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         [ObservableProperty]
         private EncryptedVaultViewModel? _selectedArchivedEncryptedOverview;
+
+        #endregion
+
+        #region Свойсто: [SelectedTrashEncryptedOverview] - Выбор зашифрованного элемента в корзине
+
+        [ObservableProperty]
+        private EncryptedVaultViewModel? _selectedTrashEncryptedOverview;
 
         #endregion
 
@@ -498,6 +515,111 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         }
 
         private bool CanSetArchive(EncryptedVaultViewModel model) => model is not null;
+
+        #endregion
+
+        #region Команда [MoveToTrashCommand]: Переносит запись в карзину (Мягкое удаление)
+
+        [RelayCommand(CanExecute = nameof(CanMoveToTrash))]
+        private async Task MoveToTrash(EncryptedVaultViewModel model)
+        {
+            var result = await _vaultService.MoveToTrashAsync(_userContext.Id, model.Id);
+
+            if (result.IsFailure)
+            {
+                MessageBox.Show($"{result.StringMessage}");
+                return;
+            }
+
+            model.DeletedAt = result.Value;
+
+            Passwords.Remove(model);
+            TrashPasswords.Add(model);
+            PasswordMenuPopup.HideCommand.Execute(null);
+        }
+
+        private bool CanMoveToTrash(EncryptedVaultViewModel model) => model is not null;
+
+        #endregion
+
+        #region Команда [RestoreTrashCommand]: Восстанавливает запись из корзины
+
+        [RelayCommand(CanExecute = nameof(CanRestoreTrash))]
+        private async Task RestoreTrash(EncryptedVaultViewModel model)
+        {
+            var result = await _vaultService.RestoreFromTrashAsync(_userContext.Id, model.Id);
+
+            if (result.IsFailure)
+            {
+                MessageBox.Show($"{result.StringMessage}");
+                return;
+            }
+
+            model.DeletedAt = null;
+
+            TrashPasswords.Remove(model);
+            Passwords.Add(model);
+
+            if (TrashPasswords.Count <= 0)
+                TrashPopup.HideCommand.Execute(null);
+        }
+
+        private bool CanRestoreTrash(EncryptedVaultViewModel model) => model is not null;
+
+        #endregion
+
+        #region Команда [RestoreAllTrashCommand] : Востановить все записи из корзины
+
+        [RelayCommand(CanExecute = nameof(CanRestoreAllTrash))]
+        private async Task RestoreAllTrash()
+        {
+            if (MessageBox.Show($"Вы точно хотите востановить все записи в кол-ве {TrashPasswords.Count}?", "Предупреждение", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                return;
+
+            var result = await _vaultService.RestoreAllFromTrashAsync(_userContext.Id);
+
+            if (result.IsFailure)
+            {
+                MessageBox.Show($"{result.StringMessage}");
+                return;
+            }
+
+            foreach (var vault in TrashPasswords.ToList())
+            {
+                TrashPasswords.Remove(vault);
+                vault.IsInTrash = false;
+                Passwords.Add(vault);
+            }
+
+            TrashPopup.HideCommand.Execute(null);
+        }
+
+        private bool CanRestoreAllTrash() => TrashPasswords.Count > 0;
+
+        #endregion
+
+        #region Команда [EmptyTrashCommand] : Очистка корзины
+
+        [RelayCommand(CanExecute = nameof(CanEmptyTrash))]
+        private async Task EmptyTrash()
+        {
+            if (MessageBox.Show($"Вы точно хотите удалить все записи в кол-ве {TrashPasswords.Count}?", "Предупреждение", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                return;
+
+            var result = await _vaultService.EmptyTrashAsync(_userContext.Id);
+
+            if (result.IsFailure)
+            {
+                MessageBox.Show($"{result.StringMessage}");
+                return;
+            }
+
+            TrashPasswords.Clear();
+
+            TrashPopup.HideCommand.Execute(null);
+        }
+
+        private bool CanEmptyTrash() => TrashPasswords.Count > 0;
 
         #endregion
 
@@ -728,6 +850,12 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
                 if (encrypted.IsArchive)
                 {
                     ArchivedPasswords.Add(encryptedVm);
+                    continue;
+                }
+
+                if (encrypted.IsInTrash)
+                {
+                    TrashPasswords.Add(encryptedVm);
                     continue;
                 }
                 

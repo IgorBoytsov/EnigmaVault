@@ -1,7 +1,12 @@
 ﻿using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.AddToFavorites;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.Archive;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.Create;
+using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.Delete;
+using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.EmptyTrash;
+using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.MoveToTrash;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.RemoveFromFavorites;
+using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.RestoreAllFromTrash;
+using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.RestoreFromTrash;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.UnArchive;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.Update;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Queries.GetAll;
@@ -104,6 +109,73 @@ namespace EnigmaVault.PasswordService.Controllers
            if (result.IsFailure)
                return BadRequest(result.StringMessage);
             
+            return Ok();
+        }
+
+        /*--Delete----------------------------------------------------------------------------------------*/
+
+        [HttpDelete("{userId}/{vaultId}")]
+        public async Task<IActionResult> Delete([FromRoute] Guid userId, Guid vaultId)
+        {
+            var command = new DeleteVaultItemCommand(userId, vaultId);
+
+            var result = await _mediator.Send(command);
+
+            if (result.IsFailure)
+                return BadRequest(result.StringMessage);
+
+            return Ok();
+        }
+
+        [HttpPatch("empty-trash/{userId}")]
+        public async Task<IActionResult> EmptyTrash([FromRoute] Guid userId)
+        {
+            var command = new EmptyVaultsTrashCommand(userId);
+
+            var result = await _mediator.Send(command);
+
+            if (result.IsFailure)
+                return BadRequest(result.StringMessage);
+
+            return Ok();
+        }
+
+        [HttpPatch("move-to-trash/{userId}/{vaultId}")]
+        public async Task<IActionResult> MoveToTrash([FromRoute] Guid userId, Guid vaultId)
+        {
+            var command = new MoveVaultToTrashCommand(userId, vaultId);
+
+            var result = await _mediator.Send(command);
+
+            if (result.IsFailure)
+                return BadRequest(result.StringMessage);
+
+            return Ok(result.Value);
+        }
+
+        [HttpPatch("restore-from-trash/{userId}/{vaultId}")]
+        public async Task<IActionResult> RestoreFronmTrash([FromRoute] Guid userId, Guid vaultId)
+        {
+            var command = new RestoreVaultFromTrashCommand(userId, vaultId);
+
+            var result = await _mediator.Send(command);
+
+            if (result.IsFailure)
+                return BadRequest(result.StringMessage);
+
+            return Ok();
+        }
+
+        [HttpPatch("restore-all-from-trash/{userId}")]
+        public async Task<IActionResult> RestoreAllFronmTrash([FromRoute] Guid userId)
+        {
+            var command = new RestoreAllVaultsFromTrashCommand(userId);
+
+            var result = await _mediator.Send(command);
+
+            if (result.IsFailure)
+                return BadRequest(result.StringMessage);
+
             return Ok();
         }
 
