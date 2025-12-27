@@ -179,7 +179,7 @@
         </Viewbox>
     </ControlTemplate>
 
-    <ControlTemplate x:Key="Restore" TargetType="Control">
+    <ControlTemplate x:Key="RestoreCircle" TargetType="Control">
         <Viewbox Stretch="Uniform">
             <Canvas Width="24" Height="24">
                 <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
