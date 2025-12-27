@@ -1,6 +1,5 @@
 ﻿using EnigmaVault.Desktop.Enums;
 using EnigmaVault.Desktop.ViewModels.Base;
-using Shared.WPF.Navigations.Windows;
 using System.Windows;
 
 namespace EnigmaVault.Desktop.Services.WindowNavigation

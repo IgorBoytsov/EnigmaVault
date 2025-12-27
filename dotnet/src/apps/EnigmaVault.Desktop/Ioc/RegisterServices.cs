@@ -5,7 +5,6 @@ using EnigmaVault.Desktop.Services.PageNavigation;
 using EnigmaVault.Desktop.Services.Secure;
 using EnigmaVault.Desktop.Services.WindowNavigation;
 using Microsoft.Extensions.DependencyInjection;
-using Shared.WPF.Navigations.Windows;
 
 namespace EnigmaVault.Desktop.Ioc
 {

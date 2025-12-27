@@ -2,7 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using EnigmaVault.Desktop.Enums;
 using EnigmaVault.Desktop.Services.PageNavigation;
-using Shared.WPF.Navigations.Windows;
+using EnigmaVault.Desktop.Services.WindowNavigation;
 
 namespace EnigmaVault.Desktop.ViewModels.Base
 {

@@ -5,8 +5,8 @@ using EnigmaVault.Desktop.Models;
 using EnigmaVault.Desktop.Services.Managers;
 using EnigmaVault.Desktop.Services.PageNavigation;
 using EnigmaVault.Desktop.Services.Secure;
+using EnigmaVault.Desktop.Services.WindowNavigation;
 using Shared.Contracts.Requests;
-using Shared.WPF.Navigations.Windows;
 
 namespace EnigmaVault.Desktop.Services.Initializers
 {

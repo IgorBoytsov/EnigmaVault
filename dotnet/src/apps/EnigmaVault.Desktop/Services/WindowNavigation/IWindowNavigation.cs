@@ -1,6 +1,6 @@
 ﻿using EnigmaVault.Desktop.Enums;
 
-namespace Shared.WPF.Navigations.Windows
+namespace EnigmaVault.Desktop.Services.WindowNavigation
 {
     public interface IWindowNavigation
     {
