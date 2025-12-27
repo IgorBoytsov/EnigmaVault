@@ -4,7 +4,7 @@ using EnigmaVault.Desktop.ViewModels.Base;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 
-namespace EnigmaVault.Desktop.ViewModels.Components.Controller
+namespace EnigmaVault.Desktop.ViewModels.Common.Controls
 {
     public sealed partial class ToolTipController : BaseViewModel
     {

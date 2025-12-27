@@ -7,13 +7,13 @@ using EnigmaVault.Desktop.Services;
 using EnigmaVault.Desktop.Services.Managers;
 using EnigmaVault.Desktop.Services.PageNavigation;
 using EnigmaVault.Desktop.Services.Secure;
+using EnigmaVault.Desktop.Services.WindowNavigation;
 using EnigmaVault.Desktop.ViewModels.Base;
 using Shared.Contracts.Requests;
-using Shared.WPF.Navigations.Windows;
 using System.Security.Cryptography;
 using System.Windows;
 
-namespace EnigmaVault.Desktop.ViewModels.Components.Authentication
+namespace EnigmaVault.Desktop.ViewModels.Features.Authentication
 {
     internal sealed partial class LoginViewModel(
         IWindowNavigation windowNavigation,

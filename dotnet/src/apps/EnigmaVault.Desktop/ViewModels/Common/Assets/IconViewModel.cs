@@ -3,7 +3,7 @@ using EnigmaVault.Desktop.ViewModels.Base;
 using Shared.Contracts.Responses.PasswordService;
 using System.Windows.Media;
 
-namespace EnigmaVault.Desktop.ViewModels.Components.Models
+namespace EnigmaVault.Desktop.ViewModels.Common.Assets
 {
     internal sealed partial class IconViewModel(IconResponse model) : BaseViewModel
     {

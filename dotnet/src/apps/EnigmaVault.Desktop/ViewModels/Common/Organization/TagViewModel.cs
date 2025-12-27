@@ -4,7 +4,7 @@ using Shared.Contracts.Responses.PasswordService;
 using System.Windows.Media;
 using ColorConverter = EnigmaVault.Desktop.Helpers.ColorConverter;
 
-namespace EnigmaVault.Desktop.ViewModels.Components.Models
+namespace EnigmaVault.Desktop.ViewModels.Common.Organization
 {
     public sealed partial class TagViewModel(TagResponse model) : BaseViewModel
     {

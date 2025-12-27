@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Input;
-using EnigmaVault.Desktop.ViewModels.Components.Controller;
-using EnigmaVault.Desktop.ViewModels.Components.Models;
+using EnigmaVault.Desktop.ViewModels.Common.Controls;
+using EnigmaVault.Desktop.ViewModels.Common.Organization;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;

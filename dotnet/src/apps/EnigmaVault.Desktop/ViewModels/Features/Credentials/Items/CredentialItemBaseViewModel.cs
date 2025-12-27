@@ -2,16 +2,17 @@
 using EnigmaVault.Desktop.Services;
 using EnigmaVault.Desktop.Services.Secure;
 using EnigmaVault.Desktop.ViewModels.Base;
+using EnigmaVault.Desktop.ViewModels.Features.Credentials.Vault;
 using Shared.Contracts.Enums;
 using System.Windows.Media;
 
-namespace EnigmaVault.Desktop.ViewModels.Components.Models.Vaults
+namespace EnigmaVault.Desktop.ViewModels.Features.Credentials.Items
 {
-    public abstract partial class VaultItemBaseViewModel : BaseViewModel
+    public abstract partial class CredentialItemBaseViewModel : BaseViewModel
     {
-        private EncryptedVaultViewModel? _model;
+        private CredentialsVaultViewModel? _model;
 
-        public VaultItemBaseViewModel(EncryptedVaultViewModel model, VaultType type)
+        public CredentialItemBaseViewModel(CredentialsVaultViewModel model, VaultType type)
         {
             _model = model;
 

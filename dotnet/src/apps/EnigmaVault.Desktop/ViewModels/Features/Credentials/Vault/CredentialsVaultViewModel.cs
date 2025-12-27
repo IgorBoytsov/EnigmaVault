@@ -6,15 +6,15 @@ using Shared.Contracts.Enums;
 using Shared.Contracts.Responses.PasswordService;
 using System.Windows.Media;
 
-namespace EnigmaVault.Desktop.ViewModels.Components.Models.Vaults
+namespace EnigmaVault.Desktop.ViewModels.Features.Credentials.Vault
 {
-    public sealed partial class EncryptedVaultViewModel : BaseViewModel
+    public sealed partial class CredentialsVaultViewModel : BaseViewModel
     {
         private readonly EncryptedVaultResponse _model;
         private readonly ISecureDataService _crypto;
         private readonly byte[] _key;
 
-        public EncryptedVaultViewModel(EncryptedVaultResponse model, ISecureDataService crypto, byte[] key)
+        public CredentialsVaultViewModel(EncryptedVaultResponse model, ISecureDataService crypto, byte[] key)
         {
             _model = model;
             _crypto = crypto;

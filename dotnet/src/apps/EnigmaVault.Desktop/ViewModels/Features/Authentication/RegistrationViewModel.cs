@@ -6,7 +6,7 @@ using EnigmaVault.Desktop.ViewModels.Base;
 using Shared.Contracts.Requests;
 using System.Windows;
 
-namespace EnigmaVault.Desktop.ViewModels.Components.Authentication
+namespace EnigmaVault.Desktop.ViewModels.Features.Authentication
 {
     internal sealed partial class RegistrationViewModel(
         IUserManagementService userManagement,

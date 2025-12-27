@@ -2,7 +2,7 @@
 using EnigmaVault.Desktop.ViewModels.Base;
 using Shared.Contracts.Responses.PasswordService;
 
-namespace EnigmaVault.Desktop.ViewModels.Components.Models
+namespace EnigmaVault.Desktop.ViewModels.Common.Assets
 {
     internal sealed partial class IconCategoryViewModel(IconCategoryResponse model) : BaseViewModel
     {

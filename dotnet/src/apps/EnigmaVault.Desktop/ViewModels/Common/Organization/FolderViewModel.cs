@@ -4,7 +4,7 @@ using Shared.Contracts.Responses.PasswordService;
 using System.Collections.ObjectModel;
 using System.Windows.Media;
 
-namespace EnigmaVault.Desktop.ViewModels.Components.Models
+namespace EnigmaVault.Desktop.ViewModels.Common.Organization
 {
     public sealed partial class FolderViewModel(FolderResponse model, Action<FolderViewModel> onSelected) : BaseViewModel
     {

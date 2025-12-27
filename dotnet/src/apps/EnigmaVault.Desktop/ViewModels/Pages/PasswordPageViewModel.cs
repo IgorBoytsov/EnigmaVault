@@ -6,9 +6,11 @@ using EnigmaVault.Desktop.Services;
 using EnigmaVault.Desktop.Services.PageNavigation;
 using EnigmaVault.Desktop.Services.Secure;
 using EnigmaVault.Desktop.ViewModels.Base;
-using EnigmaVault.Desktop.ViewModels.Components.Controller;
-using EnigmaVault.Desktop.ViewModels.Components.Models;
-using EnigmaVault.Desktop.ViewModels.Components.Models.Vaults;
+using EnigmaVault.Desktop.ViewModels.Common.Assets;
+using EnigmaVault.Desktop.ViewModels.Common.Controls;
+using EnigmaVault.Desktop.ViewModels.Common.Organization;
+using EnigmaVault.Desktop.ViewModels.Features.Credentials.Items;
+using EnigmaVault.Desktop.ViewModels.Features.Credentials.Vault;
 using EnigmaVault.PasswordService.ApiClient.Clients;
 using Shared.Contracts.Enums;
 using Shared.Contracts.Requests.PasswordService;
@@ -109,9 +111,9 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         /*--Коллекции-------------------------------------------------------------------------------------*/
 
-        public ObservableCollection<EncryptedVaultViewModel> Passwords { get; init; } = [];
-        public ObservableCollection<EncryptedVaultViewModel> ArchivedPasswords { get; init; } = [];
-        public ObservableCollection<EncryptedVaultViewModel> TrashPasswords { get; init; } = [];
+        public ObservableCollection<CredentialsVaultViewModel> Passwords { get; init; } = [];
+        public ObservableCollection<CredentialsVaultViewModel> ArchivedPasswords { get; init; } = [];
+        public ObservableCollection<CredentialsVaultViewModel> TrashPasswords { get; init; } = [];
         public ObservableCollection<TagViewModel> Tags { get; init; } = [];
 
         public ObservableCollection<IconViewModel> Icons { get; init; } = [];
@@ -236,12 +238,12 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
             if (CurrentActionRightSideMenu is ActionOnData.Create || CurrentActionRightSideMenu is ActionOnData.Update)
             {
-                if (SelectedVaultItemBaseViewModel is null)
+                if (SelectedCredentialItemBaseViewModel is null)
                     return;
 
                 string? code = SelectedIcon?.SvgCode;
-                SelectedVaultItemBaseViewModel.SvgCode = code;
-                SelectedVaultItemBaseViewModel?.SetIcon(ConvertSvgInString(code!));
+                SelectedCredentialItemBaseViewModel.SvgCode = code;
+                SelectedCredentialItemBaseViewModel?.SetIcon(ConvertSvgInString(code!));
             }
         }
 
@@ -283,9 +285,9 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         #region Свойсто: [SelectedEncryptedOverview] - Выбор зашифрованного элемента
 
         [ObservableProperty]
-        private EncryptedVaultViewModel? _selectedEncryptedOverview;
+        private CredentialsVaultViewModel? _selectedEncryptedOverview;
 
-        partial void OnSelectedEncryptedOverviewChanged(EncryptedVaultViewModel? value)
+        partial void OnSelectedEncryptedOverviewChanged(CredentialsVaultViewModel? value)
         {
             if (value is null)
                 return;
@@ -294,8 +296,8 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
             SelectedPasswordType = PasswordTypes.FirstOrDefault(pt => pt.Key == value.Type);
             CurrentActionRightSideMenu = ActionOnData.View;
             SetReadOnly(CurrentActionRightSideMenu);
-            SelectedVaultItemBaseViewModel?.Decrypt(value.EncryptedOverview, value.EncryptedDetails, _secureDataService, _userContext);
-            SelectedVaultItemBaseViewModel?.SetIcon(ConvertSvgInString(value.SvgCode!));
+            SelectedCredentialItemBaseViewModel?.Decrypt(value.EncryptedOverview, value.EncryptedDetails, _secureDataService, _userContext);
+            SelectedCredentialItemBaseViewModel?.SetIcon(ConvertSvgInString(value.SvgCode!));
         }
 
         #endregion
@@ -303,14 +305,14 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         #region Свойсто: [SelectedArchivedEncryptedOverview] - Выбор зашифрованного элемента в архиве
 
         [ObservableProperty]
-        private EncryptedVaultViewModel? _selectedArchivedEncryptedOverview;
+        private CredentialsVaultViewModel? _selectedArchivedEncryptedOverview;
 
         #endregion
 
         #region Свойсто: [SelectedTrashEncryptedOverview] - Выбор зашифрованного элемента в корзине
 
         [ObservableProperty]
-        private EncryptedVaultViewModel? _selectedTrashEncryptedOverview;
+        private CredentialsVaultViewModel? _selectedTrashEncryptedOverview;
 
         #endregion
 
@@ -330,9 +332,9 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         #region Свойсто: [SelectedPasswordViewModel]
 
         [ObservableProperty]
-        private VaultItemBaseViewModel? _selectedVaultItemBaseViewModel;
+        private CredentialItemBaseViewModel? _selectedCredentialItemBaseViewModel;
 
-        partial void OnSelectedVaultItemBaseViewModelChanged(VaultItemBaseViewModel? value)
+        partial void OnSelectedCredentialItemBaseViewModelChanged(CredentialItemBaseViewModel? value)
         {
             value?.SetIsReadOnly(CurrentActionRightSideMenu != ActionOnData.View);
         }
@@ -384,7 +386,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         [RelayCommand]
         public async Task CreateVault()
         {
-            (string EncryptedOverView, string EncryptedDetails) = SelectedVaultItemBaseViewModel!.Encrypt(_secureDataService, _userContext);
+            (string EncryptedOverView, string EncryptedDetails) = SelectedCredentialItemBaseViewModel!.Encrypt(_secureDataService, _userContext);
 
             var result = await _vaultService.CreateAsync(new CreateVaultItemRequest(_userContext.Id, SelectedPasswordType.Key.ToString(), EncryptedOverView, EncryptedDetails));
 
@@ -394,7 +396,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
                 return;
             }
 
-            var encryptedVm = new EncryptedVaultViewModel(
+            var encryptedVm = new CredentialsVaultViewModel(
                     new EncryptedVaultResponse(
                         result.Value,
                         SelectedPasswordType.Key.ToString(),
@@ -420,7 +422,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         [RelayCommand(CanExecute = nameof(CanUpdateVault))]
         private async Task UpdateVault()
         {
-            (string EncryptedOverView, string EncryptedDetails) = SelectedVaultItemBaseViewModel!.Encrypt(_secureDataService, _userContext);
+            (string EncryptedOverView, string EncryptedDetails) = SelectedCredentialItemBaseViewModel!.Encrypt(_secureDataService, _userContext);
 
             var result = await _vaultService.UpdateAsync(new UpdateVaultItemRequest(_userContext.Id, SelectedEncryptedOverview!.Id, EncryptedOverView, EncryptedDetails));
 
@@ -441,7 +443,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         #region Команда [SetFavorite]: Измнение статуса избранного
 
         [RelayCommand(CanExecute = nameof(CanSetFavorite))]
-        private async Task SetFavorite(EncryptedVaultViewModel model)
+        private async Task SetFavorite(CredentialsVaultViewModel model)
         {
             void SetValue(Result<Unit> result, bool condition)
             {
@@ -466,14 +468,14 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
             }
         }
 
-        private bool CanSetFavorite(EncryptedVaultViewModel model) => model is not null;
+        private bool CanSetFavorite(CredentialsVaultViewModel model) => model is not null;
 
         #endregion
 
         #region Команда [SetArchive]: Измнение статуса архивации
 
         [RelayCommand(CanExecute = nameof(CanSetArchive))]
-        private async Task SetArchive(EncryptedVaultViewModel model)
+        private async Task SetArchive(CredentialsVaultViewModel model)
         {
             void SetValue(Result<Unit> result, bool condition)
             {
@@ -514,14 +516,14 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
             }
         }
 
-        private bool CanSetArchive(EncryptedVaultViewModel model) => model is not null;
+        private bool CanSetArchive(CredentialsVaultViewModel model) => model is not null;
 
         #endregion
 
         #region Команда [MoveToTrashCommand]: Переносит запись в карзину (Мягкое удаление)
 
         [RelayCommand(CanExecute = nameof(CanMoveToTrash))]
-        private async Task MoveToTrash(EncryptedVaultViewModel model)
+        private async Task MoveToTrash(CredentialsVaultViewModel model)
         {
             var result = await _vaultService.MoveToTrashAsync(_userContext.Id, model.Id);
 
@@ -538,14 +540,14 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
             PasswordMenuPopup.HideCommand.Execute(null);
         }
 
-        private bool CanMoveToTrash(EncryptedVaultViewModel model) => model is not null;
+        private bool CanMoveToTrash(CredentialsVaultViewModel model) => model is not null;
 
         #endregion
 
         #region Команда [RestoreTrashCommand]: Восстанавливает запись из корзины
 
         [RelayCommand(CanExecute = nameof(CanRestoreTrash))]
-        private async Task RestoreTrash(EncryptedVaultViewModel model)
+        private async Task RestoreTrash(CredentialsVaultViewModel model)
         {
             var result = await _vaultService.RestoreFromTrashAsync(_userContext.Id, model.Id);
 
@@ -564,7 +566,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
                 TrashPopup.HideCommand.Execute(null);
         }
 
-        private bool CanRestoreTrash(EncryptedVaultViewModel model) => model is not null;
+        private bool CanRestoreTrash(CredentialsVaultViewModel model) => model is not null;
 
         #endregion
 
@@ -703,7 +705,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         #region Команда [SelectAndShowPasswordMenuPopup]: Отвечает за выбор элемента списка при открытие контекстного меню 
 
         [RelayCommand]
-        private void SelectAndShowPasswordMenuPopup(EncryptedVaultViewModel password)
+        private void SelectAndShowPasswordMenuPopup(CredentialsVaultViewModel password)
         {
             if (password is null) return;
 
@@ -844,7 +846,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
             foreach (var encrypted in result.Value)
             {
-                var encryptedVm = new EncryptedVaultViewModel(encrypted, _secureDataService, _userContext.Dek);
+                var encryptedVm = new CredentialsVaultViewModel(encrypted, _secureDataService, _userContext.Dek);
                 encryptedVm.Icon = ConvertSvgInString(encryptedVm.SvgCode!);
 
                 if (encrypted.IsArchive)
@@ -980,13 +982,13 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         #endregion
 
-        private void CreateViewModelForType(VaultType type, EncryptedVaultViewModel encryptedVm)
+        private void CreateViewModelForType(VaultType type, CredentialsVaultViewModel encryptedVm)
         {
             var encrypted = encryptedVm;
 
             encrypted ??= new(new EncryptedVaultResponse(string.Empty, SelectedPasswordType.Key.ToString(), DateTime.UtcNow, null, null, false, false, false, [], []), _secureDataService, _userContext.Dek);
 
-            SelectedVaultItemBaseViewModel = type switch
+            SelectedCredentialItemBaseViewModel = type switch
             {
                 VaultType.Password => new StandardPasswordViewModel(encrypted),
                 VaultType.Server => new ServerPasswordViewModel(encrypted),
@@ -1019,9 +1021,9 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         private void SetReadOnly(ActionOnData action)
         {
             if (action == ActionOnData.View)
-                SelectedVaultItemBaseViewModel?.SetIsReadOnly(true);
+                SelectedCredentialItemBaseViewModel?.SetIsReadOnly(true);
             else
-                SelectedVaultItemBaseViewModel?.SetIsReadOnly(false);
+                SelectedCredentialItemBaseViewModel?.SetIsReadOnly(false);
         }
     }
 }

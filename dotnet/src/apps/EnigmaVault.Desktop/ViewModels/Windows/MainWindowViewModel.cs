@@ -2,9 +2,9 @@
 using CommunityToolkit.Mvvm.Input;
 using EnigmaVault.Desktop.Enums;
 using EnigmaVault.Desktop.Services.PageNavigation;
+using EnigmaVault.Desktop.Services.WindowNavigation;
 using EnigmaVault.Desktop.ViewModels.Base;
-using EnigmaVault.Desktop.ViewModels.Components.Controller;
-using Shared.WPF.Navigations.Windows;
+using EnigmaVault.Desktop.ViewModels.Common.Controls;
 
 namespace EnigmaVault.Desktop.ViewModels.Windows
 {

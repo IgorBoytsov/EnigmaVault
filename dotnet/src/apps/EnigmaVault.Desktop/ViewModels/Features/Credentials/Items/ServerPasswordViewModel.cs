@@ -2,11 +2,12 @@
 using EnigmaVault.Desktop.Models.Vaults;
 using EnigmaVault.Desktop.Services;
 using EnigmaVault.Desktop.Services.Secure;
+using EnigmaVault.Desktop.ViewModels.Features.Credentials.Vault;
 using Shared.Contracts.Enums;
 
-namespace EnigmaVault.Desktop.ViewModels.Components.Models.Vaults
+namespace EnigmaVault.Desktop.ViewModels.Features.Credentials.Items
 {
-    public sealed partial class ServerPasswordViewModel(EncryptedVaultViewModel model) : VaultItemBaseViewModel(model, VaultType.Server)
+    public sealed partial class ServerPasswordViewModel(CredentialsVaultViewModel model) : CredentialItemBaseViewModel(model, VaultType.Server)
     {
         #region Расшифрованные данные
        
