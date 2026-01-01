@@ -18,6 +18,9 @@ namespace EnigmaVault.Desktop.ViewModels.Common.Controls
             if (placementMode == PopupPlacementMode.CustomRightUp)
                 CustomPlacementCallback = PlacePopupRightUp;
 
+            if (placementMode == PopupPlacementMode.CustomCenter)
+                CustomPlacementCallback = PlacePopupCenter;
+
             if (condition != null)
                 _condition = condition;
         }
@@ -96,6 +99,14 @@ namespace EnigmaVault.Desktop.ViewModels.Common.Controls
             double y = (0 - pHeight) + 25;
 
             return [new CustomPopupPlacement(new Point(x, y), PopupPrimaryAxis.Vertical)];
+        }
+
+        private CustomPopupPlacement[] PlacePopupCenter(Size popupSize, Size targetSize, Point offset)
+        {
+            double x = (targetSize.Width - popupSize.Width) / 2;
+            double y = (targetSize.Height - popupSize.Height) / 2;
+
+            return [new CustomPopupPlacement(new Point(x, y), PopupPrimaryAxis.None)];
         }
     }
 }

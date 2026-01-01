@@ -5,5 +5,6 @@
         Default,
         CustomRightUp,
         CustomBottom,
+        CustomCenter,
     }
 }
