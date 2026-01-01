@@ -16,18 +16,41 @@ namespace EnigmaVault.PasswordService.Application.Features.VaultItems.Queries.Ge
         private readonly IMapper _mapper = mapper;
 
         public async Task<Result<List<EncryptedVaultResponse>>> Handle(GetAllVaultsQuery request, CancellationToken cancellationToken)
-            => await _context.Set<VaultItem>().Where(v => v.UserId == request.UserId)
-                .Select(x => new EncryptedVaultResponse(
-                    x.Id.ToString(), 
-                    x.PasswordType.ToString(), 
-                    x.DateAdded, 
-                    x.DateUpdated, 
-                    x.DeletedAt, 
-                    x.IsFavorite, 
-                    x.IsArchive, 
-                    x.IsInTrash, 
-                    x.EncryptedOverview, 
-                    x.EncryptedDetails))
+        {
+            var vaultItems = await _context.Set<VaultItem>()
+                .AsNoTracking()
+                .Where(v => v.UserId == request.UserId)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.PasswordType,
+                    x.DateAdded,
+                    x.DateUpdated,
+                    x.DeletedAt,
+                    x.IsFavorite,
+                    x.IsArchive,
+                    x.IsInTrash,
+                    x.EncryptedOverview,
+                    x.EncryptedDetails,
+                    TagValues = x.Tags
+                })
                 .ToListAsync(cancellationToken);
+
+            var response = vaultItems.Select(x => new EncryptedVaultResponse(
+                x.Id.ToString(),
+                x.PasswordType.ToString(),
+                x.DateAdded,
+                x.DateUpdated,
+                x.DeletedAt,
+                x.IsFavorite,
+                x.IsArchive,
+                x.IsInTrash,
+                x.EncryptedOverview,
+                x.EncryptedDetails,
+                [.. x.TagValues.Select(v => v.ToString())]
+            )).ToList();
+
+            return response;
+        }
     }
 }
