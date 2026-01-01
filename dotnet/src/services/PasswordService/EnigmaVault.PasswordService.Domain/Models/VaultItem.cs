@@ -2,6 +2,7 @@
 using Common.Core.Results;
 using EnigmaVault.PasswordService.Domain.Enums;
 using EnigmaVault.PasswordService.Domain.ValueObjects.Password;
+using EnigmaVault.PasswordService.Domain.ValueObjects.Tag;
 using EnigmaVault.PasswordService.Domain.ValueObjects.User;
 using Shared.Kernel.Exceptions;
 using Shared.Kernel.Primitives;
@@ -23,6 +24,9 @@ namespace EnigmaVault.PasswordService.Domain.Models
         public DateTime? DeletedAt { get; private set; } 
         public DateTime DateAdded { get; private set; }
         public DateTime? DateUpdated { get; private set; }
+
+        private readonly List<TagId> _tags = [];
+        public IReadOnlyCollection<TagId> Tags => _tags.AsReadOnly();
 
         private VaultItem() { }
 
@@ -98,6 +102,24 @@ namespace EnigmaVault.PasswordService.Domain.Models
             IsInTrash = isInTrash;
             UpdateDate();
         }
+
+        public void AddTag(TagId tagId)
+        {
+            if (_tags.Contains(tagId))
+                return;
+
+            _tags.Add(tagId);
+        }
+
+        public void RemoveTag(TagId tagId)
+        {
+            if (!_tags.Contains(tagId))
+                return;
+
+            _tags.Remove(tagId);
+        }
+
+        public void ClearTags() => _tags.Clear();
 
         private void UpdateDate() => DateUpdated = DateTime.UtcNow;
 

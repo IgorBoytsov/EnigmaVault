@@ -27,6 +27,9 @@ namespace EnigmaVault.Desktop.ViewModels.Common.Organization
         [ObservableProperty]
         public Color _rgbColor = ColorConverter.HexToRgb(model.Color);
 
+        [ObservableProperty]
+        private bool _isAttached;
+
         public bool HasChanges => _model.Name != TagName || _model.Color != HexColor;
 
         public void RevertChanges()
@@ -58,5 +61,14 @@ namespace EnigmaVault.Desktop.ViewModels.Common.Organization
             Color = new SolidColorBrush(color);
         }
 
+        public void AttachedTag()
+        {
+            IsAttached = true;
+        }
+
+        public void DetatchedTag()
+        {
+            IsAttached = false;
+        }
     }
 }

@@ -1,10 +1,12 @@
-﻿using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.AddToFavorites;
+﻿using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.AddTag;
+using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.AddToFavorites;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.Archive;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.Create;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.Delete;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.EmptyTrash;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.MoveToTrash;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.RemoveFromFavorites;
+using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.RemoveTag;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.RestoreAllFromTrash;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.RestoreFromTrash;
 using EnigmaVault.PasswordService.Application.Features.VaultItems.Commands.UnArchive;
@@ -187,6 +189,34 @@ namespace EnigmaVault.PasswordService.Controllers
             var result = await _mediator.Send(new GetAllVaultsQuery(userId));
 
             return Ok(result.Value);
+        }
+
+        /*--Tags------------------------------------------------------------------------------------------*/
+
+        [HttpPatch("add-tag/{userId}/{vaultId}/{tagId}")]
+        public async Task<IActionResult> AddTag([FromRoute] Guid userId, [FromRoute] Guid vaultId, [FromRoute] Guid tagId)
+        {
+            var command = new AddTagToVaulItemCommand(userId, vaultId, tagId);
+
+            var result = await _mediator.Send(command);
+
+            if (result.IsFailure)
+                return BadRequest(result.StringMessage);
+
+            return Ok();
+        }
+
+        [HttpPatch("remove-tag/{userId}/{vaultId}/{tagId}")]
+        public async Task<IActionResult> RemoveTag([FromRoute] Guid userId, [FromRoute] Guid vaultId, [FromRoute] Guid tagId)
+        {
+            var command = new RemoveTagFromVaulItemCommand(userId, vaultId, tagId);
+
+            var result = await _mediator.Send(command);
+
+            if (result.IsFailure)
+                return BadRequest(result.StringMessage);
+
+            return Ok();
         }
     }
 }

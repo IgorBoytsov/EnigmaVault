@@ -79,6 +79,8 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
                 RestoreAllTrashCommand.NotifyCanExecuteChanged();
                 EmptyTrashCommand.NotifyCanExecuteChanged();
             };
+
+            AttachTagsPopup = new(PopupPlacementMode.CustomCenter, PlacementMode.Custom);
         }
 
         public async Task InitializeAsync()
@@ -138,6 +140,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         public ToolTipController BottomToolTipController { get; } = new(ToolTipPlacement.CenterBottom);
 
         public PopupController PasswordMenuPopup { get; } = new(); 
+        public PopupController AttachTagsPopup { get; } 
         public PopupController AddIconPopup { get; } = new(); 
         public PopupController AddIconCategoryPopup { get; } = new();
         public PopupController ArchivesPopup { get; }
@@ -184,6 +187,20 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
                 value.SetColor(Color.FromRgb(byte.Parse(UpdateRed), byte.Parse(UpdateGreen), byte.Parse(UpdateBlue)));
             }
+        }
+
+        [ObservableProperty]
+        private TagViewModel? _selectedAttachedTag;
+
+        partial void OnSelectedAttachedTagChanged(TagViewModel? value)
+        {
+            if (value is null)
+                return;
+
+            if (value.IsAttached) 
+                DetachTagToSelectedVaultCommand.Execute(value);
+            else
+                AttachTagToSelectedVaultCommand.Execute(value); 
         }
 
         [ObservableProperty]
@@ -298,6 +315,16 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
             SetReadOnly(CurrentActionRightSideMenu);
             SelectedCredentialItemBaseViewModel?.Decrypt(value.EncryptedOverview, value.EncryptedDetails, _secureDataService, _userContext);
             SelectedCredentialItemBaseViewModel?.SetIcon(ConvertSvgInString(value.SvgCode!));
+
+            foreach (var tag in Tags)
+            {
+                if (tag is null) continue;
+
+                if (value.Tags.Contains(tag))
+                    tag.AttachedTag();
+                else
+                    tag.DetatchedTag();
+            }
         }
 
         #endregion
@@ -407,8 +434,11 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
                         IsArchive: false,
                         IsInTrash: false,
                         Convert.FromBase64String(EncryptedOverView),
-                        Convert.FromBase64String(EncryptedDetails)),
-                    _secureDataService, _userContext.Dek);
+                        Convert.FromBase64String(EncryptedDetails),
+                        []),
+                    _secureDataService, 
+                    _userContext.Dek,
+                    Tags);
 
             encryptedVm.Icon = ConvertSvgInString(encryptedVm.SvgCode);
 
@@ -684,6 +714,51 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         #endregion
 
+        #region Команда [AttachTagToSelectedVaultCommand]: Присоединяет тэг к выбранному зашифрованному элементу
+
+        [RelayCommand]
+        private async Task AttachTagToSelectedVault(TagViewModel tag)
+        {
+            if (SelectedEncryptedOverview is null)
+                return;
+
+            var result = await _vaultService.AddTagAsync(_userContext.Id, SelectedEncryptedOverview.Id, tag.Id);
+
+            if (result.IsFailure)
+            {
+                MessageBox.Show($"{result.StringMessage}");
+                return;
+            }
+
+            SelectedEncryptedOverview.AddTag(tag.Id);
+
+            if (tag.IsAttached)
+                tag.DetatchedTag();
+            else
+                tag.AttachedTag();
+        }
+
+        [RelayCommand]
+        private async Task DetachTagToSelectedVault(TagViewModel tag)
+        {
+            if (SelectedEncryptedOverview is null)
+                return;
+
+            var result = await _vaultService.RemoveTagAsync(_userContext.Id, SelectedEncryptedOverview.Id, tag.Id);
+
+            if (result.IsFailure)
+            {
+                MessageBox.Show($"{result.StringMessage}");
+                return;
+            }
+
+            SelectedEncryptedOverview.RemoveTag(tag.Id);
+            tag.DetatchedTag();
+        }
+
+
+        #endregion
+
         #region Команда [SetLeftSideMenuControlCommand]: Отвечает за выбор текущего оборажаемого контрола на левой боковой понели
 
         [RelayCommand(CanExecute = nameof(CanSetLeftSideMenuControl))]
@@ -712,6 +787,19 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
             SelectedEncryptedOverview = password;
 
             PasswordMenuPopup.ShowAtMouse();
+        }
+
+        #endregion
+
+        #region Команда [OpenAttachTagPopupCommand]
+
+        [RelayCommand]
+        private void OpenAttachTagPopupCommand(UIElement? tagret)
+        {
+            if (PasswordMenuPopup.IsOpen)
+                PasswordMenuPopup.HideCommand.Execute(null);
+
+            AttachTagsPopup.ShowCommand.Execute(tagret);
         }
 
         #endregion
@@ -846,7 +934,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
             foreach (var encrypted in result.Value)
             {
-                var encryptedVm = new CredentialsVaultViewModel(encrypted, _secureDataService, _userContext.Dek);
+                var encryptedVm = new CredentialsVaultViewModel(encrypted, _secureDataService, _userContext.Dek, Tags);
                 encryptedVm.Icon = ConvertSvgInString(encryptedVm.SvgCode!);
 
                 if (encrypted.IsArchive)
@@ -986,7 +1074,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         {
             var encrypted = encryptedVm;
 
-            encrypted ??= new(new EncryptedVaultResponse(string.Empty, SelectedPasswordType.Key.ToString(), DateTime.UtcNow, null, null, false, false, false, [], []), _secureDataService, _userContext.Dek);
+            encrypted ??= new(new EncryptedVaultResponse(string.Empty, SelectedPasswordType.Key.ToString(), DateTime.UtcNow, null, null, false, false, false, [], [], []), _secureDataService, _userContext.Dek, Tags);
 
             SelectedCredentialItemBaseViewModel = type switch
             {

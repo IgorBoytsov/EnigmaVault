@@ -34,14 +34,19 @@ namespace EnigmaVault.Desktop.Views.Pages
             {
                 window.LocationChanged -= Popup_Deactivated;
                 window.Deactivated -= Popup_Deactivated;
-            }      
+            }
         }
 
         private void Popup_Deactivated(object? sender, EventArgs e)
         {
             if (DataContext is PasswordPageViewModel viewModel)
+            {
                 if (viewModel.PasswordMenuPopup.IsOpen)
                     viewModel.PasswordMenuPopup.HideCommand.Execute(null);
+
+                if (viewModel.AttachTagsPopup.IsOpen)
+                    viewModel.AttachTagsPopup.HideCommand.Execute(null);
+            }
         }
     }
 }

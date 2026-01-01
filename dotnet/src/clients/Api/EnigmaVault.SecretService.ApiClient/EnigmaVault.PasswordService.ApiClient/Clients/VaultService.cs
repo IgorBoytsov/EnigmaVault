@@ -200,5 +200,35 @@ namespace EnigmaVault.PasswordService.ApiClient.Clients
                 return Error.New(ErrorCode.ApiError, ex.Message);
             }
         }
+
+        public async Task<Result<Unit>> AddTagAsync(string userId, string vaultId, string tagId)
+        {
+            try
+            {
+                var response = await _httpClient.PatchAsync($"{_url}/add-tag/{userId}/{vaultId}/{tagId}", null);
+                response.EnsureSuccessStatusCode();
+
+                return Unit.Value;
+            }
+            catch (Exception ex)
+            {
+                return Error.New(ErrorCode.ApiError, ex.Message);
+            }
+        }
+
+        public async Task<Result<Unit>> RemoveTagAsync(string userId, string vaultId, string tagId)
+        {
+            try
+            {
+                var response = await _httpClient.PatchAsync($"{_url}/remove-tag/{userId}/{vaultId}/{tagId}", null);
+                response.EnsureSuccessStatusCode();
+
+                return Unit.Value;
+            }
+            catch (Exception ex)
+            {
+                return Error.New(ErrorCode.ApiError, ex.Message);
+            }
+        }
     }
 }

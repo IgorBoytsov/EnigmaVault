@@ -1,5 +1,6 @@
 ﻿using EnigmaVault.PasswordService.Domain.Models;
 using EnigmaVault.PasswordService.Domain.ValueObjects.Password;
+using EnigmaVault.PasswordService.Domain.ValueObjects.Tag;
 using EnigmaVault.PasswordService.Domain.ValueObjects.User;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -42,9 +43,9 @@ namespace EnigmaVault.PasswordService.Infrastructure.Persistence.Configurations
                 .HasMaxLength(EncryptedData.MAX_LENGTH)
                 .IsRequired()
                 .Metadata.SetValueComparer(new ValueComparer<EncryptedData>(
-                (c1, c2) => Enumerable.SequenceEqual(c1.Value, c2.Value),
-                c => c.Value.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-                c => c));
+                    (c1, c2) => Enumerable.SequenceEqual(c1.Value, c2.Value),
+                    c => c.Value.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                    c => c));
 
             builder.Property(vi => vi.EncryptedDetails)
                 .HasColumnName("EncryptedDetails")
@@ -54,9 +55,9 @@ namespace EnigmaVault.PasswordService.Infrastructure.Persistence.Configurations
                 .HasMaxLength(EncryptedData.MAX_LENGTH)
                 .IsRequired()
                 .Metadata.SetValueComparer(new ValueComparer<EncryptedData>(
-                (c1, c2) => Enumerable.SequenceEqual(c1.Value, c2.Value),
-                c => c.Value.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-                c => c));
+                    (c1, c2) => Enumerable.SequenceEqual(c1.Value, c2.Value),
+                    c => c.Value.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                    c => c));
 
             builder.Property(vi => vi.IsFavorite)
                 .HasColumnName("IsFavorite")
@@ -81,6 +82,20 @@ namespace EnigmaVault.PasswordService.Infrastructure.Persistence.Configurations
             builder.Property(vi => vi.DateUpdated)
                 .HasColumnName("DateUpdated")
                 .IsRequired(false);
+
+            builder.Property(vi => vi.Tags)
+                .HasColumnName("TagsIds")
+                .HasColumnType("uuid[]")
+                .HasField("_tags")
+                .UsePropertyAccessMode(PropertyAccessMode.Field)
+                .HasConversion(
+                    tags => tags.Select(t => t.Value).ToArray(),
+                    ids => (ids ?? Array.Empty<Guid>()).Select(id => TagId.Create(id)).ToList())
+                 .Metadata.SetValueComparer(new ValueComparer<IReadOnlyCollection<TagId>>(
+                     (c1, c2) => c1!.SequenceEqual(c2!),
+                     c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.Value.GetHashCode())),
+                     c => c.ToList()
+            ));
         }
     }
 }
