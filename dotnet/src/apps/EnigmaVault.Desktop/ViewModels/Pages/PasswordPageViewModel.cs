@@ -58,6 +58,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
             CurrentDisplayUserControlLeftSideMenu = UserControlsName.Tags;
             CurrentActionRightSideMenu = ActionOnData.Create;
 
+            PasswordsView = CollectionViewSource.GetDefaultView(Passwords);
             IconView = CollectionViewSource.GetDefaultView(Icons);
             IconCategoryView = CollectionViewSource.GetDefaultView(IconCategories);
 
@@ -92,15 +93,20 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
             try
             {
+                await Task.Delay(1111);
+
                 await GetTags();
                 await GetIconCategories();
                 await GetIcons();
 
                 await GetEncreptedOverview();
 
+                SelectedGrouping = Grouping[0];
+                UpdateGroupingPassword();
+
                 IsInitialize = true;
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 MessageBox.Show($"Произошла ошибка инициализации: {ex}");
             }
@@ -114,6 +120,8 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         /*--Коллекции-------------------------------------------------------------------------------------*/
 
         public ObservableCollection<CredentialsVaultViewModel> Passwords { get; init; } = [];
+        public ICollectionView PasswordsView { get; private init; } = null!;
+
         public ObservableCollection<CredentialsVaultViewModel> ArchivedPasswords { get; init; } = [];
         public ObservableCollection<CredentialsVaultViewModel> TrashPasswords { get; init; } = [];
         public ObservableCollection<TagViewModel> Tags { get; init; } = [];
@@ -130,6 +138,23 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
             new KeyValuePair<VaultType, string>(VaultType.Server, "Данные сервера"),
             new KeyValuePair<VaultType, string>(VaultType.CreditCard, "Банковские карты"),
             new KeyValuePair<VaultType, string>(VaultType.ApiKey, "Апи Ключи"),
+        ];
+
+        public ObservableCollection<KeyValuePair<GroupingView, string>> Grouping { get; private set; } =
+        [
+            new KeyValuePair<GroupingView, string>(GroupingView.None, "Не применять"),
+            new KeyValuePair<GroupingView, string>(GroupingView.Name, "Названию"),
+            new KeyValuePair<GroupingView, string>(GroupingView.VaultType, "Типу"),
+            new KeyValuePair<GroupingView, string>(GroupingView.Add, "Добавлению"),
+            new KeyValuePair<GroupingView, string>(GroupingView.Update, "Обновлению"),
+            new KeyValuePair<GroupingView, string>(GroupingView.Tag, "Тэгам"),
+        ];
+
+        // TODO: Реализовать в будущем.
+        public ObservableCollection<KeyValuePair<SortingView, string>> Sorting { get; private set; } =
+        [
+            new KeyValuePair<SortingView, string>(SortingView.Ascending, "По возрастанию (от А до Я, от 0 до 9)"),
+            new KeyValuePair<SortingView, string>(SortingView.Descending, "По убыванию (от Я до А, от 9 до 0)"),
         ];
 
         /*--Свойства--------------------------------------------------------------------------------------*/
@@ -403,6 +428,25 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(SaveIconCommand))]
         private IconCategoryViewModel? _selectedIconCategory;
+
+        #endregion
+
+        #region Свойство: [SelectedGrouping] - Выбор группровки списка паролей
+
+        [ObservableProperty]
+        private KeyValuePair<GroupingView, string> _selectedGrouping;
+
+        partial void OnSelectedGroupingChanged(KeyValuePair<GroupingView, string> value)
+        {
+            UpdateGroupingPassword();
+        }
+
+        #endregion
+
+        #region Свойство: [SelectedSorting] - Выбор сортировки списка паролей
+
+        [ObservableProperty]
+        private KeyValuePair<SortingView, string> _selectedSorting;
 
         #endregion
 
@@ -948,7 +992,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
                     TrashPasswords.Add(encryptedVm);
                     continue;
                 }
-                
+
                 Passwords.Add(encryptedVm);
             }
         }
@@ -1113,5 +1157,53 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
             else
                 SelectedCredentialItemBaseViewModel?.SetIsReadOnly(false);
         }
+
+        #region Взоимодейсвтие с ICollectionView
+
+        private void UpdatePasswordsView() => PasswordsView.Refresh();
+
+        private void UpdateGroupingPassword()
+        {
+            PasswordsView.GroupDescriptions.Clear();
+            PasswordsView.SortDescriptions.Clear();
+
+            var sorting = ListSortDirection.Descending;
+
+            Action action = SelectedGrouping.Key switch
+            {
+                GroupingView.Name => () => 
+                {
+                    PasswordsView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(CredentialsVaultViewModel.ServiceNameFirstLetter)));
+                    PasswordsView.SortDescriptions.Add(new SortDescription(nameof(CredentialsVaultViewModel.ServiceNameFirstLetter), sorting));
+                }
+                ,
+                GroupingView.Add => () => 
+                {
+                    PasswordsView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(CredentialsVaultViewModel.DateOnlyAdd)));
+                    PasswordsView.SortDescriptions.Add(new SortDescription(nameof(CredentialsVaultViewModel.DateOnlyAdd), sorting));
+                }
+                ,
+                GroupingView.Update => () =>
+                {
+                    PasswordsView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(CredentialsVaultViewModel.DateOnlyUpdate)));
+                    PasswordsView.SortDescriptions.Add(new SortDescription(nameof(CredentialsVaultViewModel.DateOnlyUpdate), sorting));
+                }
+                ,
+                GroupingView.VaultType => () =>
+                {
+                    PasswordsView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(CredentialsVaultViewModel.VaultTypeString)));
+                    PasswordsView.SortDescriptions.Add(new SortDescription(nameof(CredentialsVaultViewModel.VaultTypeString), sorting));
+                }
+                ,
+                GroupingView.None or _ => () => PasswordsView.SortDescriptions.Add(new SortDescription(nameof(CredentialsVaultViewModel.DateAdded), sorting)),
+            };
+
+            action?.Invoke();
+
+            UpdatePasswordsView();
+        }
+
+        #endregion
+
     }
 }

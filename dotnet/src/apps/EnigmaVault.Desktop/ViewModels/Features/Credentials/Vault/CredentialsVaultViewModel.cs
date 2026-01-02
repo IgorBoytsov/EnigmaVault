@@ -67,6 +67,8 @@ namespace EnigmaVault.Desktop.ViewModels.Features.Credentials.Vault
         [ObservableProperty]
         private string _serviceName = null!;
 
+        partial void OnServiceNameChanged(string value) => OnPropertyChanged(nameof(ServiceNameFirstLetter));
+
         [ObservableProperty]
         private string? _url;
 
@@ -84,6 +86,47 @@ namespace EnigmaVault.Desktop.ViewModels.Features.Credentials.Vault
 
         [ObservableProperty]
         private DateTime? _deletedAt;
+
+        public string ServiceNameFirstLetter
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(ServiceName))
+                    return "#";
+
+                return ServiceName.Substring(0, 1).ToUpper();
+            }
+        }
+
+        public string DateOnlyAdd => DateOnly.FromDateTime(DateAdded).ToString("D");
+
+        public string DateOnlyUpdate
+        {
+            get
+            {
+                if (!DateUpdate.HasValue)
+                    return DateOnly.MinValue.ToString("D");
+
+                return DateOnly.FromDateTime(DateUpdate.Value).ToString("D");
+            }
+        }
+
+        public string VaultTypeString
+        {
+            get
+            {
+                Func<string> func = Type switch
+                {
+                    VaultType.Password => () => "Стандартный пароль",
+                    VaultType.Server => () => "Сервер",
+                    VaultType.CreditCard => () => "Банковская карта",
+                    VaultType.ApiKey => () => "API",
+                    _ => () => "#"
+                };
+
+                return func.Invoke();
+            }
+        }
 
         public void UpdateEncrypted(string encryptedOverview, string encryptedDetails)
         {
