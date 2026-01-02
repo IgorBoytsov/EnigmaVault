@@ -84,6 +84,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
             AttachTagsPopup = new(PopupPlacementMode.CustomCenter, PlacementMode.Custom);
 
             CurrentTemplateTypePasswords = TemplateType.Detailed;
+            SelectedGrouping = GroupingView.None;
         }
 
         public async Task InitializeAsync()
@@ -103,7 +104,6 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
                 await GetEncreptedOverview();
 
-                SelectedGrouping = Grouping[0];
                 UpdateGroupingPassword();
 
                 IsInitialize = true;
@@ -142,15 +142,15 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
             new KeyValuePair<VaultType, string>(VaultType.ApiKey, "Апи Ключи"),
         ];
 
-        public ObservableCollection<KeyValuePair<GroupingView, string>> Grouping { get; private set; } =
-        [
-            new KeyValuePair<GroupingView, string>(GroupingView.None, "Не применять"),
-            new KeyValuePair<GroupingView, string>(GroupingView.Name, "Названию"),
-            new KeyValuePair<GroupingView, string>(GroupingView.VaultType, "Типу"),
-            new KeyValuePair<GroupingView, string>(GroupingView.Add, "Добавлению"),
-            new KeyValuePair<GroupingView, string>(GroupingView.Update, "Обновлению"),
-            new KeyValuePair<GroupingView, string>(GroupingView.Tag, "Тэгам"),
-        ];
+        //public ObservableCollection<KeyValuePair<GroupingView, string>> Grouping { get; private set; } =
+        //[
+        //    new KeyValuePair<GroupingView, string>(GroupingView.None, "Не применять"),
+        //    new KeyValuePair<GroupingView, string>(GroupingView.Name, "Названию"),
+        //    new KeyValuePair<GroupingView, string>(GroupingView.VaultType, "Типу"),
+        //    new KeyValuePair<GroupingView, string>(GroupingView.Add, "Добавлению"),
+        //    new KeyValuePair<GroupingView, string>(GroupingView.Update, "Обновлению"),
+        //    new KeyValuePair<GroupingView, string>(GroupingView.Tag, "Тэгам"),
+        //];
 
         // TODO: Реализовать в будущем.
         public ObservableCollection<KeyValuePair<SortingView, string>> Sorting { get; private set; } =
@@ -444,9 +444,10 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         #region Свойство: [SelectedGrouping] - Выбор группровки списка паролей
 
         [ObservableProperty]
-        private KeyValuePair<GroupingView, string> _selectedGrouping;
+        [NotifyCanExecuteChangedFor(nameof(SetGroupingPasswordsCommand))]
+        private GroupingView _selectedGrouping;
 
-        partial void OnSelectedGroupingChanged(KeyValuePair<GroupingView, string> value)
+        partial void OnSelectedGroupingChanged(GroupingView value)
         {
             UpdateGroupingPassword();
         }
@@ -840,6 +841,15 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         #endregion
 
+        #region Команда [SetGroupingPasswordsCommand]: Выбор текущей группировки у списка с паролями
+
+        [RelayCommand(CanExecute = nameof(CanSetGroupingPasswords))]
+        private void SetGroupingPasswords(GroupingView type) => SelectedGrouping = type;
+
+        private bool CanSetGroupingPasswords(GroupingView type) => type != SelectedGrouping;
+
+        #endregion
+
         #region Команда [SelectAndShowPasswordMenuPopup]: Отвечает за выбор элемента списка при открытие контекстного меню 
 
         [RelayCommand]
@@ -1188,7 +1198,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
             var sorting = ListSortDirection.Descending;
 
-            Action action = SelectedGrouping.Key switch
+            Action action = SelectedGrouping switch
             {
                 GroupingView.Name => () => 
                 {
