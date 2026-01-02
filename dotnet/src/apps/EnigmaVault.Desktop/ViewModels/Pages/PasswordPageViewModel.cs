@@ -82,6 +82,8 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
             };
 
             AttachTagsPopup = new(PopupPlacementMode.CustomCenter, PlacementMode.Custom);
+
+            CurrentTemplateTypePasswords = TemplateType.Detailed;
         }
 
         public async Task InitializeAsync()
@@ -190,6 +192,14 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
             else
                 SelectedIcon = null;
         }
+
+        #endregion
+
+        #region Свойство: [CurrentTemplateTypePasswords] - Текущий отображаемый темплей у списка с паролями.
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(SetTemplatePasswordsCommand))]
+        private TemplateType _currentTemplateTypePasswords;
 
         #endregion
 
@@ -818,6 +828,15 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         private void SetRightSideMenuAction(ActionOnData action) => CurrentActionRightSideMenu = action;
 
         private bool CanSetRightSideMenuAction(ActionOnData action) => CurrentActionRightSideMenu != action;
+
+        #endregion
+
+        #region Команда [SetTemplatePasswordsCommand]: Выбор текущего темплейта у списка с паролями
+
+        [RelayCommand(CanExecute = nameof(CanSetTemplatePasswords))]
+        private void SetTemplatePasswords(TemplateType type) => CurrentTemplateTypePasswords = type;
+
+        private bool CanSetTemplatePasswords(TemplateType type) => type != CurrentTemplateTypePasswords;
 
         #endregion
 
