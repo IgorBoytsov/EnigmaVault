@@ -4,6 +4,18 @@
                     xmlns:attach="clr-namespace:EnigmaVault.Desktop.Resources.Attachable">
 
     <!-- ╔═════════════════════════════════════════════════════════════════════════════╗ -->
+    <!-- ║                              ItemsPanelTemplate                             ║ -->
+    <!-- ╚═════════════════════════════════════════════════════════════════════════════╝ -->
+
+    <ItemsPanelTemplate x:Key="StackPanelTemplate">
+        <StackPanel/>
+    </ItemsPanelTemplate>
+
+    <ItemsPanelTemplate x:Key="WrapPanelTemplate">
+        <WrapPanel/>
+    </ItemsPanelTemplate>
+
+    <!-- ╔═════════════════════════════════════════════════════════════════════════════╗ -->
     <!-- ║                                   Базовый                                   ║ -->
     <!-- ╚═════════════════════════════════════════════════════════════════════════════╝ -->
 
