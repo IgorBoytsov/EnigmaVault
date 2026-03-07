@@ -3,6 +3,7 @@ using EnigmaVault.Desktop.Models.Vaults;
 using EnigmaVault.Desktop.Services;
 using EnigmaVault.Desktop.Services.Secure;
 using EnigmaVault.Desktop.ViewModels.Features.Credentials.Vault;
+using Quantropic.Security.Abstractions;
 using Shared.Contracts.Enums;
 
 namespace EnigmaVault.Desktop.ViewModels.Features.Credentials.Items
@@ -51,7 +52,7 @@ namespace EnigmaVault.Desktop.ViewModels.Features.Credentials.Items
 
         #endregion
 
-        public override void Decrypt(string encryptedOverView, string encryptedDetails, ISecureDataService secureData, IUserContext context)
+        public override void Decrypt(string encryptedOverView, string encryptedDetails, ICryptoServices secureData, IUserContext context)
         {
             var overview = secureData.DecryptData<OverviewPayload>(encryptedOverView, context.Dek);
             var details = secureData.DecryptData<StandardPassword>(encryptedDetails, context.Dek);
@@ -68,13 +69,13 @@ namespace EnigmaVault.Desktop.ViewModels.Features.Credentials.Items
             RecoveryKey = details?.RecoveryKey;
         }
 
-        public override (string EncryptedOverView, string EncryptedDetails) Encrypt(ISecureDataService secureData, IUserContext context)
+        public override (string EncryptedOverView, string EncryptedDetails) Encrypt(ICryptoServices secureData, IUserContext context)
         {
             var overview = new OverviewPayload(ServiceName, Url!, Note, SvgCode);
             var details = new StandardPassword(Login, Password, Email, Phone, SecretWord, RecoveryKey);
 
-            var encryptedOverview = secureData.EncryptData(overview, context.Dek);
-            var encryptedDetails = secureData.EncryptData(details, context.Dek);
+            var encryptedOverview = secureData.EncryptedData(overview, context.Dek);
+            var encryptedDetails = secureData.EncryptedData(details, context.Dek);
 
             return (encryptedOverview, encryptedDetails);
         }

@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using EnigmaVault.Desktop.Models.Vaults;
-using EnigmaVault.Desktop.Services.Secure;
 using EnigmaVault.Desktop.ViewModels.Base;
 using EnigmaVault.Desktop.ViewModels.Common.Organization;
+using Quantropic.Security.Abstractions;
 using Shared.Contracts.Enums;
 using Shared.Contracts.Responses.PasswordService;
 using System.Collections.ObjectModel;
@@ -13,10 +13,10 @@ namespace EnigmaVault.Desktop.ViewModels.Features.Credentials.Vault
     public sealed partial class CredentialsVaultViewModel : BaseViewModel
     {
         private readonly EncryptedVaultResponse _model;
-        private readonly ISecureDataService _crypto;
+        private readonly ICryptoServices _crypto;
         private readonly byte[] _key;
 
-        public CredentialsVaultViewModel(EncryptedVaultResponse model, ISecureDataService crypto, byte[] key, IReadOnlyCollection<TagViewModel> tags)
+        public CredentialsVaultViewModel(EncryptedVaultResponse model, ICryptoServices crypto, byte[] key, IReadOnlyCollection<TagViewModel> tags)
         {
             _model = model;
             _crypto = crypto;

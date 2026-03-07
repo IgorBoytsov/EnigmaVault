@@ -9,6 +9,7 @@ using EnigmaVault.Desktop.Services.Secure;
 using EnigmaVault.Desktop.Services.WindowNavigation;
 using EnigmaVault.Desktop.ViewModels.Base;
 using EnigmaVault.Desktop.ViewModels.Features.Authentication;
+using Quantropic.Security.Abstractions;
 
 namespace EnigmaVault.Desktop.ViewModels.Windows
 {
@@ -21,7 +22,9 @@ namespace EnigmaVault.Desktop.ViewModels.Windows
         private readonly IAuthService _authService;
         private readonly ITokenManager _tokenManager;
         private readonly IKeyManager _keyManager;
-        private readonly ISecureDataService _secureDataService ;
+        private readonly ISrpClient _srpClient;
+        private readonly IKeyDerivationService _keyDerivationService;
+        private readonly ICryptoServices _cryptoServices;
 
         public AuthenticationWindowViewModel(
         IWindowNavigation windowNavigation,
@@ -31,7 +34,9 @@ namespace EnigmaVault.Desktop.ViewModels.Windows
         IAuthService authService,
         ITokenManager tokenManager,
         IKeyManager keyManager,
-        ISecureDataService secureDataService) : base(windowNavigation, pageNavigation)
+        ISrpClient srpClient,
+        IKeyDerivationService keyDerivationService,
+        ICryptoServices cryptoServices) : base(windowNavigation, pageNavigation)
         {
             _windowNavigation = windowNavigation;
             _pageNavigation = pageNavigation;
@@ -40,41 +45,13 @@ namespace EnigmaVault.Desktop.ViewModels.Windows
             _authService = authService;
             _tokenManager = tokenManager;
             _keyManager = keyManager;
-            _secureDataService = secureDataService;
+            _srpClient = srpClient;
+            _keyDerivationService = keyDerivationService;
+            _cryptoServices = cryptoServices;
 
-            Login = new(_windowNavigation, _pageNavigation, _authService, _userManagementService, _userContext, _tokenManager, _keyManager, _secureDataService);
-            Registration = new(_userManagementService, _secureDataService);
-            RecoveryAccess = new(_userManagementService);
-
-            Registration.Registered += () => CurrentAuthenticationType = AuthenticationType.Authentication;
-            RecoveryAccess.Sent += () => CurrentAuthenticationType = AuthenticationType.Authentication;
+            Login = new(_windowNavigation, _pageNavigation, _authService, _userManagementService, _userContext, _tokenManager, _keyManager, _srpClient, _keyDerivationService, _cryptoServices);
         }
 
         public LoginViewModel Login { get; }
-
-        public RegistrationViewModel Registration { get; } 
-
-        public RecoveryAccessViewModel RecoveryAccess { get; }
-
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(SwitchAuthenticationControlCommand))]
-        [NotifyCanExecuteChangedFor(nameof(SwitchRegistrationControlCommand))]
-        [NotifyCanExecuteChangedFor(nameof(SwitchRecoveryAccessControlCommand))]
-        private AuthenticationType _currentAuthenticationType;
-
-        [RelayCommand(CanExecute = nameof(CanSwitchAuthenticationControl))]
-        private void SwitchAuthenticationControl() => CurrentAuthenticationType = AuthenticationType.Authentication;
-
-        private bool CanSwitchAuthenticationControl() => CurrentAuthenticationType != AuthenticationType.Authentication;
-
-        [RelayCommand(CanExecute = nameof(CanSwitchRegistrationControl))]
-        private void SwitchRegistrationControl() => CurrentAuthenticationType = AuthenticationType.Registration;
-
-        private bool CanSwitchRegistrationControl() => CurrentAuthenticationType != AuthenticationType.Registration;
-
-        [RelayCommand(CanExecute = nameof(CanSwitchRecoveryAccessControl))]
-        private void SwitchRecoveryAccessControl() => CurrentAuthenticationType = AuthenticationType.RecoveryAccess;
-
-        private bool CanSwitchRecoveryAccessControl() => CurrentAuthenticationType != AuthenticationType.RecoveryAccess;
     }
 }

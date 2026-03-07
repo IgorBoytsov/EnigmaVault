@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using EnigmaVault.Desktop.Services;
-using EnigmaVault.Desktop.Services.Secure;
 using EnigmaVault.Desktop.ViewModels.Base;
 using EnigmaVault.Desktop.ViewModels.Features.Credentials.Vault;
+using Quantropic.Security.Abstractions;
 using Shared.Contracts.Enums;
 using System.Windows.Media;
 
@@ -54,9 +54,9 @@ namespace EnigmaVault.Desktop.ViewModels.Features.Credentials.Items
         [ObservableProperty]
         private string? _svgCode;
 
-        public abstract void Decrypt(string encryptedOverView, string encryptedDetails, ISecureDataService secureData, IUserContext context);
+        public abstract void Decrypt(string encryptedOverView, string encryptedDetails, ICryptoServices secureData, IUserContext context);
 
-        public abstract (string EncryptedOverView, string EncryptedDetails) Encrypt(ISecureDataService secureData, IUserContext context);
+        public abstract (string EncryptedOverView, string EncryptedDetails) Encrypt(ICryptoServices secureData, IUserContext context);
 
         public abstract void Clear();
 

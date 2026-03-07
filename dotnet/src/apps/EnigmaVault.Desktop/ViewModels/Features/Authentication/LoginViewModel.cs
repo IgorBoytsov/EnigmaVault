@@ -9,7 +9,8 @@ using EnigmaVault.Desktop.Services.PageNavigation;
 using EnigmaVault.Desktop.Services.Secure;
 using EnigmaVault.Desktop.Services.WindowNavigation;
 using EnigmaVault.Desktop.ViewModels.Base;
-using Shared.Contracts.Requests;
+using Quantropic.Security.Abstractions;
+using Shared.Contracts.Requests.Authentication;
 using System.Security.Cryptography;
 using System.Windows;
 
@@ -23,7 +24,9 @@ namespace EnigmaVault.Desktop.ViewModels.Features.Authentication
         IUserContext userContext,
         ITokenManager tokenManager,
         IKeyManager keyManager,
-        ISecureDataService secureDataService) : BaseViewModel
+        ISrpClient srpClient,
+        IKeyDerivationService keyDerivationService,
+        ICryptoServices cryptoServices) : BaseViewModel
     {
         private readonly IWindowNavigation _windowNavigation = windowNavigation;
         private readonly IPageNavigation _pageNavigation = pageNavigation;
@@ -32,7 +35,9 @@ namespace EnigmaVault.Desktop.ViewModels.Features.Authentication
         private readonly IUserContext _userContext = userContext;
         private readonly ITokenManager _tokenManager = tokenManager;
         private readonly IKeyManager _keyManager = keyManager;
-        private readonly ISecureDataService _secureDataService = secureDataService;
+        private readonly ISrpClient _srpClient = srpClient;
+        private readonly IKeyDerivationService _keyDerivationService = keyDerivationService;
+        private readonly ICryptoServices _cryptoServices = cryptoServices;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(LoginCommand))]
@@ -56,13 +61,13 @@ namespace EnigmaVault.Desktop.ViewModels.Features.Authentication
             var publicInfo = userPublicInfo.Value;
             byte[] salt = Convert.FromBase64String(publicInfo.ClientSalt);
 
-            var (kek, authHash) = _secureDataService.DeriveKeysFromPassword(AuthPassword, salt);
+            var (kek, _) = _keyDerivationService.DeriveKeysFromPassword(AuthPassword, salt);
 
             byte[]? dek;
 
             try
             {
-                dek = _secureDataService.DecryptData<byte[]>(publicInfo.EncryptedDek, kek);
+                dek = _cryptoServices.DecryptData<byte[]>(publicInfo.EncryptedDek, kek);
             }
             catch (CryptographicException)
             {
@@ -70,22 +75,41 @@ namespace EnigmaVault.Desktop.ViewModels.Features.Authentication
                 return;
             }
 
-            var request = new LoginRequest(AuthLogin, authHash);
-            var result = await _authService.Login(request);
+            var srpChallengeRequest = new SrpChallengeRequest(AuthLogin);
+            var srpChallengeResult = await _authService.GetSrpChallenge(srpChallengeRequest);
 
-            if (result.IsFailure)
+            if (srpChallengeResult.IsFailure)
             {
-                MessageBox.Show(result.StringMessage);
+                MessageBox.Show(srpChallengeResult.StringMessage);
                 return;
             }
 
-            _tokenManager.SaveTokens(new AccessData(result.Value!.AccessToken, result.Value!.RefreshToken));
+            var (A, M1, S) = _srpClient.GenerateSrpProof(AuthPassword, srpChallengeResult.Value.Salt, srpChallengeResult.Value.B);
+
+            var srpVerifierRequest = new SrpVerifyRequest(AuthLogin, A, M1);
+            var srpVerifierResult = await _authService.VerifySrpProof(srpVerifierRequest);
+
+            if (srpChallengeResult.IsFailure)
+            {
+                MessageBox.Show(srpChallengeResult.StringMessage);
+                return;
+            }
+
+            var isValidServer = _srpClient.VerifyServerM2(A, M1, S, srpVerifierResult.Value.M2!);
+
+            if (!isValidServer)
+            {
+                MessageBox.Show("Подлинность сервера не получилось подтвердить");
+                return;
+            }
+
+            _tokenManager.SaveTokens(new AccessData(srpVerifierResult.Value!.AccessToken, srpVerifierResult.Value!.RefreshToken));
             _keyManager.SaveKey(dek!);
 
-            var userInfo = await _userManagementService.Me(result.Value.AccessToken);
+            var userInfo = await _userManagementService.Me(srpVerifierResult.Value.AccessToken);
 
             _userContext.UpdateUserInfo(new UserInfo(userInfo.Value!.Id, userInfo.Value.Login));
-            _userContext.UpdateTokens(new AccessData(result.Value.AccessToken, result.Value.RefreshToken));
+            _userContext.UpdateTokens(new AccessData(srpVerifierResult.Value.AccessToken, srpVerifierResult.Value.RefreshToken));
             _userContext.UpdateDek(dek!);
 
             Array.Clear(kek, 0, kek.Length);

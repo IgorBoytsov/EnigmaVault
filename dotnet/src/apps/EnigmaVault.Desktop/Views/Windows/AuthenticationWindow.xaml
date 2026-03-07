@@ -41,13 +41,11 @@
                 BorderThickness="1">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
                     <RowDefinition />
-                    <RowDefinition Height="120"/>
                 </Grid.RowDefinitions>
 
                 <!--#region Header -->
@@ -151,44 +149,12 @@
 
                 <!--#endregion-->
 
-                <!--#region AccountManagementControls -->
+                <amc:AuthenticationControl Grid.Column="0" Grid.Row="1" Visibility="{Binding CurrentAuthenticationType, Converter={StaticResource AuthControlsVisibilityConverter}, ConverterParameter={x:Static enum:AuthenticationType.Authentication}}" 
+                                           d:Visibility="Visible"
+                                           d:Margin="0,0,0,20"
+                                           Login="{Binding Login.AuthLogin, UpdateSourceTrigger=PropertyChanged}"
+                                           Password="{Binding Login.AuthPassword, UpdateSourceTrigger=PropertyChanged}"/>
 
-                <DockPanel Grid.Row="1" 
-                           Width="400"
-                           HorizontalAlignment="Right"
-                           Grid.Column="1">
-
-                    <amc:AuthenticationControl Visibility="{Binding CurrentAuthenticationType, Converter={StaticResource AuthControlsVisibilityConverter}, ConverterParameter={x:Static enum:AuthenticationType.Authentication}}" 
-                                               d:Visibility="Visible"
-                                               d:Margin="0,0,0,20"
-                                               DockPanel.Dock="Top"
-                                               Login="{Binding Login.AuthLogin, UpdateSourceTrigger=PropertyChanged}"
-                                               Password="{Binding Login.AuthPassword, UpdateSourceTrigger=PropertyChanged}"/>
-
-                    <amc:RegistrationControl Visibility="{Binding CurrentAuthenticationType, Converter={StaticResource AuthControlsVisibilityConverter}, ConverterParameter={x:Static enum:AuthenticationType.Registration}}" 
-                                             d:Visibility="Visible"
-                                             d:Margin="0,0,0,20"
-                                             DockPanel.Dock="Top"
-                                             Title="Регистрация" 
-                                             ContentText="Для регестрации обязательно нужно указать логин, пароль и почту, либо номер телефона."
-                                             Login="{Binding Registration.RegistrationLogin, Mode=TwoWay}"
-                                             Password="{Binding Registration.RegistrationPassword, Mode=TwoWay}"
-                                             UserName="{Binding Registration.RegistrationUserName, Mode=TwoWay}"
-                                             Email="{Binding Registration.RegistrationEmail, Mode=TwoWay}"/>
-
-                    <amc:RecoveryAccessControl Visibility="{Binding CurrentAuthenticationType, Converter={StaticResource AuthControlsVisibilityConverter}, ConverterParameter={x:Static enum:AuthenticationType.RecoveryAccess}}"
-                                               d:Visibility="Visible"
-                                               d:Margin="0,0,0,20"
-                                               DockPanel.Dock="Top"
-                                               Login="{Binding RecoveryAccess.RecoveryLogin}"
-                                               Email="{Binding RecoveryAccess.RecoveryEmail}"
-                                               NewPassword="{Binding RecoveryAccess.RecoveryNewPassword}"/>
-
-                </DockPanel>
-
-                <!--#endregion-->
-
-                <!--#region Кнопки -->
 
                 <WrapPanel Grid.Row="2" Grid.Column="1" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom">
 
@@ -216,72 +182,7 @@
 
                     </WrapPanel>
 
-                    <!--Регистрация-->
-                    <WrapPanel Visibility="{Binding CurrentAuthenticationType, Converter={StaticResource AuthControlsVisibilityConverter}, ConverterParameter={x:Static enum:AuthenticationType.Registration}}">
-
-                        <Button Content="Зарегестрироваться"
-                                DockPanel.Dock="Bottom"
-                                Style="{StaticResource Button.App}"
-                                Command="{Binding Registration.RegisterCommand}"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Bottom"
-                                Margin="0,0,10,0"
-                                FontWeight="Bold"
-                                FontSize="16"/>
-
-                    </WrapPanel>
-
-                    <!--Востановить доступ-->
-                    <WrapPanel Visibility="{Binding CurrentAuthenticationType, Converter={StaticResource AuthControlsVisibilityConverter}, ConverterParameter={x:Static enum:AuthenticationType.RecoveryAccess}}">
-
-                        <Button Content="Востановить"
-                                DockPanel.Dock="Bottom"
-                                Style="{StaticResource Button.App}"
-                                Command="{Binding RecoveryAccess.RecoveryAccessCommand}"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Bottom"
-                                Margin="0,0,10,0"
-                                FontWeight="Bold"
-                                FontSize="16"/>
-
-                    </WrapPanel>
-
                 </WrapPanel>
-
-                <StackPanel Grid.Column="0" Grid.RowSpan="2"
-                            VerticalAlignment="Top"
-                            Margin="10,10,0,0">
-
-                    <Button Content="Вход"
-                            Grid.Column="2"
-                            Command="{Binding SwitchAuthenticationControlCommand}"
-                            CommandParameter="{x:Static enum:AuthenticationType.Authentication}"
-                            Style="{StaticResource Button.App}"
-                            HorizontalAlignment="Stretch"
-                            FontWeight="Bold"
-                            FontSize="16"/>
-
-                    <Button Content="Регистрация"
-                            Grid.Column="2"
-                            Command="{Binding SwitchRegistrationControlCommand}"
-                            CommandParameter="{x:Static enum:AuthenticationType.Registration}"
-                            Style="{StaticResource Button.App}"
-                            HorizontalAlignment="Stretch"
-                            FontWeight="Bold"
-                            FontSize="16"/>
-
-                    <Button Content="Вспомнить пароль"
-                            Grid.Column="2"
-                            Command="{Binding SwitchRecoveryAccessControlCommand}"
-                            CommandParameter="{x:Static enum:AuthenticationType.RecoveryAccess}"
-                            Style="{StaticResource Button.App}"
-                            HorizontalAlignment="Stretch"
-                            FontWeight="Bold"
-                            FontSize="16"/>
-
-                </StackPanel>
-
-                <!--#endregion-->
 
             </Grid>
 

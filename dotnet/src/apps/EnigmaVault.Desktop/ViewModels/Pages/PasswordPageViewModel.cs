@@ -12,6 +12,7 @@ using EnigmaVault.Desktop.ViewModels.Common.Organization;
 using EnigmaVault.Desktop.ViewModels.Features.Credentials.Items;
 using EnigmaVault.Desktop.ViewModels.Features.Credentials.Vault;
 using EnigmaVault.PasswordService.ApiClient.Clients;
+using Quantropic.Security.Abstractions;
 using Shared.Contracts.Enums;
 using Shared.Contracts.Requests.PasswordService;
 using Shared.Contracts.Responses.PasswordService;
@@ -35,7 +36,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         private readonly IIconCategoryService _iconCategoryService;
         private readonly IIconService _iconService;
         private readonly IUserContext _userContext;
-        private readonly ISecureDataService _secureDataService;
+        private readonly ICryptoServices _cryptoServices;
 
         // ====================================================================================
         //                                      ИНИЦИАЛИЗАЦИЯ                                        
@@ -47,14 +48,14 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
             IIconCategoryService iconCategoryService,
             IIconService iconService,
             IUserContext userContext,
-            ISecureDataService secureDataService)
+            ICryptoServices cryptoServices)
         {
             _vaultService = vaultService;
             _tagService = tagService;
             _iconCategoryService = iconCategoryService;
             _iconService = iconService;
             _userContext = userContext;
-            _secureDataService = secureDataService;
+            _cryptoServices = cryptoServices;
 
             SelectedPasswordType = PasswordTypes.FirstOrDefault();
             CurrentDisplayUserControlLeftSideMenu = UserControlsName.Tags;
@@ -185,7 +186,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
             SelectedPasswordType = PasswordTypes.FirstOrDefault(pt => pt.Key == value.Type);
             CurrentActionRightSideMenu = ActionOnData.View;
             SetReadOnly(CurrentActionRightSideMenu);
-            SelectedCredentialItemBaseViewModel?.Decrypt(value.EncryptedOverview, value.EncryptedDetails, _secureDataService, _userContext);
+            SelectedCredentialItemBaseViewModel?.Decrypt(value.EncryptedOverview, value.EncryptedDetails, _cryptoServices, _userContext);
             SelectedCredentialItemBaseViewModel?.SetIcon(ConvertSvgInString(value.SvgCode!));
 
             foreach (var tag in Tags)
@@ -480,7 +481,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         [RelayCommand]
         public async Task CreateVault()
         {
-            (string EncryptedOverView, string EncryptedDetails) = SelectedCredentialItemBaseViewModel!.Encrypt(_secureDataService, _userContext);
+            (string EncryptedOverView, string EncryptedDetails) = SelectedCredentialItemBaseViewModel!.Encrypt(_cryptoServices, _userContext);
 
             var result = await _vaultService.CreateAsync(new CreateVaultItemRequest(_userContext.Id, SelectedPasswordType.Key.ToString(), EncryptedOverView, EncryptedDetails));
 
@@ -503,7 +504,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
                         Convert.FromBase64String(EncryptedOverView),
                         Convert.FromBase64String(EncryptedDetails),
                         []),
-                    _secureDataService, 
+                    _cryptoServices, 
                     _userContext.Dek,
                     Tags);
 
@@ -519,7 +520,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         [RelayCommand(CanExecute = nameof(CanUpdateVault))]
         private async Task UpdateVault()
         {
-            (string EncryptedOverView, string EncryptedDetails) = SelectedCredentialItemBaseViewModel!.Encrypt(_secureDataService, _userContext);
+            (string EncryptedOverView, string EncryptedDetails) = SelectedCredentialItemBaseViewModel!.Encrypt(_cryptoServices, _userContext);
 
             var result = await _vaultService.UpdateAsync(new UpdateVaultItemRequest(_userContext.Id, SelectedEncryptedOverview!.Id, EncryptedOverView, EncryptedDetails));
 
@@ -1036,7 +1037,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
             foreach (var encrypted in result.Value)
             {
-                var encryptedVm = new CredentialsVaultViewModel(encrypted, _secureDataService, _userContext.Dek, Tags);
+                var encryptedVm = new CredentialsVaultViewModel(encrypted, _cryptoServices, _userContext.Dek, Tags);
                 encryptedVm.Icon = ConvertSvgInString(encryptedVm.SvgCode!);
 
                 if (encrypted.IsArchive)
@@ -1147,7 +1148,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         {
             var encrypted = encryptedVm;
 
-            encrypted ??= new(new EncryptedVaultResponse(string.Empty, SelectedPasswordType.Key.ToString(), DateTime.UtcNow, null, null, false, false, false, [], [], []), _secureDataService, _userContext.Dek, Tags);
+            encrypted ??= new(new EncryptedVaultResponse(string.Empty, SelectedPasswordType.Key.ToString(), DateTime.UtcNow, null, null, false, false, false, [], [], []), _cryptoServices, _userContext.Dek, Tags);
 
             SelectedCredentialItemBaseViewModel = type switch
             {

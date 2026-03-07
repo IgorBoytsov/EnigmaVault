@@ -5,6 +5,9 @@ using EnigmaVault.Desktop.Services.PageNavigation;
 using EnigmaVault.Desktop.Services.Secure;
 using EnigmaVault.Desktop.Services.WindowNavigation;
 using Microsoft.Extensions.DependencyInjection;
+using Quantropic.Security.Abstractions;
+using Quantropic.Security.Cryptography;
+using Quantropic.Security.Srp.Client;
 
 namespace EnigmaVault.Desktop.Ioc
 {
@@ -18,7 +21,9 @@ namespace EnigmaVault.Desktop.Ioc
             services.AddSingleton<IKeyManager, KeyManager>();
             services.AddSingleton<IApplicationInitializer, ApplicationInitializer>();
             services.AddSingleton<IUserContext, UserContext>();
-            services.AddSingleton<ISecureDataService, SecureDataService>();
+            services.AddSingleton<ISrpClient, SrpClientService>();
+            services.AddSingleton<IKeyDerivationService, KeyDerivationService>();
+            services.AddSingleton<ICryptoServices, CryptoService>();
 
             return services;
         }
