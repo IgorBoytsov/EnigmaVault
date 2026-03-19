@@ -61,7 +61,7 @@ namespace EnigmaVault.Desktop.ViewModels.Features.Authentication
             var publicInfo = userPublicInfo.Value;
             byte[] salt = Convert.FromBase64String(publicInfo.ClientSalt);
 
-            var (kek, _) = _keyDerivationService.DeriveKeysFromPassword(AuthPassword, salt);
+            var (kek, _) = _keyDerivationService.DeriveKeysFromPassword(AuthLogin, AuthPassword, salt);
 
             byte[]? dek;
 
@@ -84,7 +84,7 @@ namespace EnigmaVault.Desktop.ViewModels.Features.Authentication
                 return;
             }
 
-            var (A, M1, S) = _srpClient.GenerateSrpProof(AuthPassword, srpChallengeResult.Value.Salt, srpChallengeResult.Value.B);
+            var (A, M1, S) = _srpClient.GenerateSrpProof(AuthLogin, AuthPassword, srpChallengeResult.Value.Salt, srpChallengeResult.Value.B);
 
             var srpVerifierRequest = new SrpVerifyRequest(AuthLogin, A, M1);
             var srpVerifierResult = await _authService.VerifySrpProof(srpVerifierRequest);
