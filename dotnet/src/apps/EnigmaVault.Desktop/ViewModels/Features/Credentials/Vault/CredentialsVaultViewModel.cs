@@ -173,5 +173,7 @@ namespace EnigmaVault.Desktop.ViewModels.Features.Credentials.Vault
 
             }
         }
+
+        public void SetIcon(DrawingImage? image) => Icon = image;
     }
 }

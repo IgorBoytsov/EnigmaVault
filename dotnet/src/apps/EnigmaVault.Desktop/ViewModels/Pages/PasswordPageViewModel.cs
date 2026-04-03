@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.Input;
 using EnigmaVault.Desktop.Enums;
 using EnigmaVault.Desktop.Services;
 using EnigmaVault.Desktop.Services.PageNavigation;
-using EnigmaVault.Desktop.Services.Secure;
 using EnigmaVault.Desktop.ViewModels.Base;
 using EnigmaVault.Desktop.ViewModels.Common.Assets;
 using EnigmaVault.Desktop.ViewModels.Common.Controls;
@@ -175,6 +174,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
         #region Свойсто: [SelectedEncryptedOverview] - Выбор зашифрованного элемента
 
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(UpdateVaultCommand))]
         private CredentialsVaultViewModel? _selectedEncryptedOverview;
 
         partial void OnSelectedEncryptedOverviewChanged(CredentialsVaultViewModel? value)
@@ -401,6 +401,13 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
         #endregion
 
+        #region Свойства: IconName
+
+        [ObservableProperty]
+        private string _iconName;
+
+        #endregion
+
         // ============IconCategory==================
 
         #region Свойства: IconCategories, Методы: [OnSelectedEditableCategoryChanging, OnSelectedEditableCategoryChanged, OnCategoryPropertyChanged]
@@ -532,6 +539,7 @@ namespace EnigmaVault.Desktop.ViewModels.Pages
 
             SelectedEncryptedOverview!.UpdateEncrypted(EncryptedOverView, EncryptedDetails);
             SelectedEncryptedOverview!.UpdateDate(DateTime.Parse(result.Value).ToLocalTime());
+            SelectedEncryptedOverview.SetIcon(SelectedIcon?.Icon);
         }
 
         private bool CanUpdateVault() => SelectedEncryptedOverview is not null;
